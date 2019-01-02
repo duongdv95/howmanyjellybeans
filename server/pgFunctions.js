@@ -17,6 +17,10 @@ function sortRank(playersArray) {
     // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
 }
 
+function createGame({playerData}) {
+    return knex("games").insert({access_code: generateAccessCode(), properties: playerData})
+}
+
 function deleteGame(accessCode) {
     // remove game from postgres after inactivity or host ends
 }
@@ -39,4 +43,8 @@ function updatePlayer({playerName, accessCode}) {
 function uniqueGuess({guess, accessCode}) {
     // check if player guess is unique
     // returns true/false
+}
+
+module.exports = {
+    createGame
 }
