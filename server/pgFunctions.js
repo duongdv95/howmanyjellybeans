@@ -17,19 +17,34 @@ function sortRank(playersArray) {
     // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
 }
 
-function createGame({playerData}) {
-    return knex("games").insert({access_code: generateAccessCode(), properties: playerData})
+function createGame({playerData, winningNumber}) {
+    return knex("games").insert(
+        {
+        access_code: generateAccessCode(), 
+        players: JSON.stringify([playerData]), 
+        winning_number: winningNumber,
+        game_end: false
+        })
 }
 
 function deleteGame(accessCode) {
     // remove game from postgres after inactivity or host ends
 }
 
-function addPlayer({playerData, accessCode}) {
-    const guess = playerData.guess
-    if (uniqueGuess({guess, accessCode})) {
-        // add player to matching access_code in games table
-    }
+function getPlayers({accessCode}) {
+    const players = knex("games").where({access_code: accessCode}).select("players")
+    // console.log(players)
+    return players
+}
+async function addPlayer({playerData, accessCode}) {
+    // const guess = playerData.guess
+    // if (uniqueGuess({guess, accessCode})) {
+    //     // add player to matching access_code in games table
+    // }
+    var [playersResponse] = await getPlayers({accessCode})
+    var playersArray = playersResponse.players
+    playersArray.push(playerData)
+    return knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
 }
 
 function removePlayer({playerName, accessCode}) {
@@ -46,5 +61,6 @@ function uniqueGuess({guess, accessCode}) {
 }
 
 module.exports = {
-    createGame
+    createGame,
+    addPlayer
 }
