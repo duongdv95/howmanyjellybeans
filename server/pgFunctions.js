@@ -19,49 +19,59 @@ async function sortPlayerRank({accessCode}) {
     // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
     const [winningNumberResponse] = await getWinningNumber({accessCode});
     var playersResponse = await getPlayers({accessCode})
-    if(!playersResponse.status || !winningNumberResponse) {return {status: false, info: "invalid access code"}}
-    var playersArrayWithHost = playersResponse.info;
+    if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
+    var playersArrayWithHost = playersResponse.message;
     var playersArray = playersArrayWithHost.slice(1);
     var winningNumber = winningNumberResponse.winning_number
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
     })
-    return {status: true, info: playersArray}
+    return {status: true, message: playersArray}
 }
 
-function createGame({playerData, winningNumber}) {
-    return knex("games").insert(
-        {
-        access_code: generateAccessCode(), 
-        players: JSON.stringify([playerData]), 
-        winning_number: winningNumber,
-        game_end: false
-        })
+async function createGame({playerData, winningNumber}) {
+    if(playerData.username.length === 0 || winningNumber.length === 0 || isNaN(winningNumber)) {
+        return {status: false, message: "Invalid username or winning number"}
+    } else {
+        const response = await knex("games").insert(
+            {
+            access_code: generateAccessCode(), 
+            players: JSON.stringify([playerData]), 
+            winning_number: winningNumber,
+            game_end: false
+            }
+        )
+        return response ? {status: true, message: "Succesfully created game."} : {status: false, message: "Error! could not create game."}
+    }
+    
 }
 
-function deleteGame({accessCode}) {
-    return knex("games").where({access_code: accessCode}).del();
+async function deleteGame({accessCode}) {
+    const response = await knex("games").where({access_code: accessCode}).del();
+    return (response) ? {status: true, message: "Succesfully deleted game"} : {status: false, message: "Invalid access code"}
 }
 
 async function getPlayers({accessCode}) {
-    const [players] = await knex("games").where({access_code: accessCode}).select("players")
-    // console.log(players.players)
-    return {status: true, info: players.players}
+    const [response] = await knex("games").where({access_code: accessCode}).select("players")
+    return response ? {status: true, message: response.players} : {status: false, message: "Invalid access code"}
 }
 async function addPlayer({playerData, accessCode}) {
+    if(playerData.username.length === 0 || playerData.guess.length === 0) {
+        return {status: false, message: "Invalid access code."}
+    }
     const guess = playerData.guess
     var playersResponse = await getPlayers({accessCode})
     if(!playersResponse.status) {return playersResponse}
-    var playersArray = playersResponse.info
+    var playersArray = playersResponse.message
     if (uniqueGuess({guess, playersArray})) {
         playersArray.push(playerData)
         const addPlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
         if (addPlayerResponse) {
-            return {status: true, info: "succesfully added player"}
+            return {status: true, message: "Succesfully added player."}
         }
         // add player to matching access_code in games table
     } else {
-        return {status: false, info: "did not add player, guess already in DB"}
+        return {status: false, message: "Did not add player, guess already in DB."}
     }
 }
 
