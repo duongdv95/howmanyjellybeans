@@ -10,9 +10,23 @@ function generateAccessCode() {
     return code;
 }
 
-function sortRank(playersArray) {
+function getWinningNumber({accessCode}) {
+    return knex("games").where({access_code: accessCode}).select("winning_number")
+}
+
+async function sortPlayerRank({accessCode}) {
     // return sorted array of how close players are to the winning number
     // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
+    const [winningNumberResponse] = await getWinningNumber({accessCode});
+    var playersResponse = await getPlayers({accessCode})
+    if(!playersResponse.status || !winningNumberResponse) {return {status: false, info: "invalid access code"}}
+    var playersArrayWithHost = playersResponse.info;
+    var playersArray = playersArrayWithHost.slice(1);
+    var winningNumber = winningNumberResponse.winning_number
+    playersArray.sort(function(a, b) {
+        return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
+    })
+    return {status: true, info: playersArray}
 }
 
 function createGame({playerData, winningNumber}) {
@@ -29,15 +43,16 @@ function deleteGame({accessCode}) {
     return knex("games").where({access_code: accessCode}).del();
 }
 
-function getPlayers({accessCode}) {
-    const players = knex("games").where({access_code: accessCode}).select("players")
-    return players
+async function getPlayers({accessCode}) {
+    const [players] = await knex("games").where({access_code: accessCode}).select("players")
+    // console.log(players.players)
+    return {status: true, info: players.players}
 }
 async function addPlayer({playerData, accessCode}) {
     const guess = playerData.guess
-    var [playersResponse] = await getPlayers({accessCode})
-    if(!playersResponse) {return}
-    var playersArray = playersResponse.players
+    var playersResponse = await getPlayers({accessCode})
+    if(!playersResponse.status) {return playersResponse}
+    var playersArray = playersResponse.info
     if (uniqueGuess({guess, playersArray})) {
         playersArray.push(playerData)
         const addPlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
@@ -62,11 +77,10 @@ function uniqueGuess({guess, playersArray}) {
 }
 
 function updatePlayer({playerName, accessCode}) {
-    // player can update their guess
+    // should players be allowed to update their guesses?
 }
 function removePlayer({playerName, accessCode}) {
     // allow host to remove player or allow player to remove themself ??
-
 }
 
 
@@ -75,5 +89,6 @@ module.exports = {
     createGame,
     addPlayer,
     getPlayers,
-    deleteGame
+    deleteGame,
+    sortPlayerRank
 }

@@ -14,8 +14,15 @@ app.use(session({
 
 app.get("/:id/players", async (req, res) => {
     const accessCode = req.params.id
-    const [playersResponse] = await pgFunctions.getPlayers({accessCode});
-    playersResponse ? res.json(playersResponse.players) : res.status(400).send("Access code not found")
+    const response = await pgFunctions.getPlayers({accessCode});
+    // playersResponse ? res.json(playersResponse.players) : res.status(400).send("Access code not found")
+    response.status ? res.status(200).send(response) : res.status(400).send(response)
+})
+
+app.get("/:id/sortplayers", async (req, res) => {
+    const accessCode = req.params.id
+    const response = await pgFunctions.sortPlayerRank({accessCode});
+    response ? res.status(200).send(response) : res.status(400).send(response.info)
 })
 
 app.post("/createGame", async (req, res) => {
