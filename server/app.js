@@ -22,8 +22,12 @@ app.post("/createGame", async (req, res) => {
     const username = req.body.username
     const winningNumber = req.body.winningNumber
     const playerData = generatePlayerObj({username, guess: null, host: true, sessionID: null})
-    const response = await pgFunctions.createGame({playerData, winningNumber})
-    response ? res.status(200).send() : res.status(400).send()
+    if(username.length === 0 || winningNumber.length === 0) {
+        res.status(400).send({error: "username or winning number is empty"})
+    } else {
+        const response = await pgFunctions.createGame({playerData, winningNumber})
+        response ? res.status(200).send() : res.status(400).send()
+    }
 })
 
 app.post("/joinGame", async (req, res) => {
@@ -31,8 +35,12 @@ app.post("/joinGame", async (req, res) => {
     const guess = req.body.guess
     const accessCode = req.body.accessCode
     const playerData = generatePlayerObj({username, guess, host: false, sessionID: null})
-    const response = await pgFunctions.addPlayer({playerData, accessCode})
-    response ? res.status(200).send() : res.status(400).send()
+    if(username.length === 0 || guess.length === 0) {
+        res.status(400).send({error: "username or guess is empty"})
+    } else {
+        const response = await pgFunctions.addPlayer({playerData, accessCode})
+        response.status ? res.status(200).send(response.info) : res.status(400).send(response.info)
+    }
 })
 
 app.delete("/:id/deleteGame", async (req, res) => {

@@ -34,30 +34,42 @@ function getPlayers({accessCode}) {
     return players
 }
 async function addPlayer({playerData, accessCode}) {
-    // const guess = playerData.guess
-    // if (uniqueGuess({guess, accessCode})) {
-    //     // add player to matching access_code in games table
-    // }
+    const guess = playerData.guess
     var [playersResponse] = await getPlayers({accessCode})
     if(!playersResponse) {return}
     var playersArray = playersResponse.players
-    playersArray.push(playerData)
-    return knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+    if (uniqueGuess({guess, playersArray})) {
+        playersArray.push(playerData)
+        const addPlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+        if (addPlayerResponse) {
+            return {status: true, info: "succesfully added player"}
+        }
+        // add player to matching access_code in games table
+    } else {
+        return {status: false, info: "did not add player, guess already in DB"}
+    }
 }
 
-function removePlayer({playerName, accessCode}) {
-    // allow host to remove player or allow player to remove themself ??
-
+function uniqueGuess({guess, playersArray}) {
+    let uniqueGuess = true;
+    for(let i = 1; i < playersArray.length; i++) {
+        if(playersArray[i].guess === guess) {
+            uniqueGuess = false
+            break
+        }
+    }
+    return uniqueGuess
 }
 
 function updatePlayer({playerName, accessCode}) {
     // player can update their guess
 }
+function removePlayer({playerName, accessCode}) {
+    // allow host to remove player or allow player to remove themself ??
 
-function uniqueGuess({guess, accessCode}) {
-    // check if player guess is unique
-    // returns true/false
 }
+
+
 
 module.exports = {
     createGame,
