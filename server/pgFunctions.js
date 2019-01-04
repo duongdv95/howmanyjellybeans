@@ -4,12 +4,10 @@ const knex     = require("knex")(knexfile);
 function generateAccessCode() {
     var code = "";
     const possible = "afghijkloqrsuwxy23456789";
-  
-      for(var i=0; i < 6; i++){
+    for(var i=0; i < 6; i++){
         code += possible.charAt(Math.floor(Math.random() * possible.length));
-      }
-  
-      return code;
+    }
+    return code;
 }
 
 function sortRank(playersArray) {
@@ -27,13 +25,12 @@ function createGame({playerData, winningNumber}) {
         })
 }
 
-function deleteGame(accessCode) {
-    // remove game from postgres after inactivity or host ends
+function deleteGame({accessCode}) {
+    return knex("games").where({access_code: accessCode}).del();
 }
 
 function getPlayers({accessCode}) {
     const players = knex("games").where({access_code: accessCode}).select("players")
-    // console.log(players)
     return players
 }
 async function addPlayer({playerData, accessCode}) {
@@ -42,13 +39,15 @@ async function addPlayer({playerData, accessCode}) {
     //     // add player to matching access_code in games table
     // }
     var [playersResponse] = await getPlayers({accessCode})
+    if(!playersResponse) {return}
     var playersArray = playersResponse.players
     playersArray.push(playerData)
     return knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
 }
 
 function removePlayer({playerName, accessCode}) {
-    // allow host to remove player or allow player to remove themself
+    // allow host to remove player or allow player to remove themself ??
+
 }
 
 function updatePlayer({playerName, accessCode}) {
@@ -62,5 +61,7 @@ function uniqueGuess({guess, accessCode}) {
 
 module.exports = {
     createGame,
-    addPlayer
+    addPlayer,
+    getPlayers,
+    deleteGame
 }
