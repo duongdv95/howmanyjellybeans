@@ -1,5 +1,6 @@
 const knexfile = require("./knexfile.js");
 const knex     = require("knex")(knexfile);
+const shortid  = require("shortid");
 
 function generateAccessCode() {
     var code = "";
@@ -33,6 +34,7 @@ async function createGame({playerData, winningNumber}) {
     if(playerData.username.length === 0 || winningNumber.length === 0 || isNaN(winningNumber)) {
         return {status: false, message: "Invalid username or winning number"}
     } else {
+        playerData.id = shortid.generate();
         const response = await knex("games").insert(
             {
             access_code: generateAccessCode(), 
@@ -64,12 +66,12 @@ async function addPlayer({playerData, accessCode}) {
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     if (uniqueGuess({guess, playersArray})) {
+        playerData.id = shortid.generate();
         playersArray.push(playerData)
         const addPlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
         if (addPlayerResponse) {
             return {status: true, message: "Succesfully added player."}
         }
-        // add player to matching access_code in games table
     } else {
         return {status: false, message: "Did not add player, guess already in DB."}
     }
@@ -88,17 +90,40 @@ function uniqueGuess({guess, playersArray}) {
 
 function updatePlayer({playerName, accessCode}) {
     // should players be allowed to update their guesses?
+    // or only permit host to update people's guesses
 }
-function removePlayer({playerName, accessCode}) {
+
+async function deletePlayer({playerID, accessCode}) {
     // allow host to remove player or allow player to remove themself ??
+    var playersResponse = await getPlayers({accessCode})
+    if(!playersResponse.status) {return playersResponse}
+    var playersArray = playersResponse.message
+    
+    let index;
+    for(let i = 0; i < playersArray.length; i++) {
+        if(playersArray[i].id == playerID) {
+            index = i;
+            break
+        }
+    }
+    if(!index){
+        return {status: false, message: "Player not found."}
+    }
+    playersArray.splice(index, 1)
+    const deletePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+    if (deletePlayerResponse) {
+        return {status: true, message: playersArray}
+    } else {
+        return {status: false, message: "Error deleting player!"}
+    }
+    
 }
-
-
 
 module.exports = {
     createGame,
     addPlayer,
     getPlayers,
     deleteGame,
-    sortPlayerRank
+    sortPlayerRank,
+    deletePlayer
 }

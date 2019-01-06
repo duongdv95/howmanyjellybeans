@@ -1,24 +1,41 @@
-const express     = require("express");
-const app         = express();
-const bodyParser  = require("body-parser");
-const pgFunctions = require("./pgFunctions");
-const session     = require("express-session");
+const express          = require("express");
+const app              = express();
+const bodyParser       = require("body-parser");
+const pgFunctions      = require("./pgFunctions");
+const session          = require("express-session");
+const uuid             = require("uuid/v4");
+const KnexSessionStore = require("connect-session-knex")(session);
+const knexfile         = require("./knexfile.js");
+const knex             = require("knex")(knexfile);
 
 app.use(bodyParser.json());
 app.use(session({
+    genid: (req) => {
+        console.log("Inside the session middleware")
+        console.log(req.sessionID)
+        return uuid()
+    },
+    store: new KnexSessionStore({
+        knex: knex,
+        tablename: "sessions"
+    }),
     secret: "merp",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {maxAge: null}
 }));
 
 app.get("/:id/players", async (req, res) => {
+    console.log("Inside homepage")
+    console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.getPlayers({accessCode});
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
 app.get("/:id/sortplayers", async (req, res) => {
+    console.log("Inside homepage")
+    console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.sortPlayerRank({accessCode});
     response ? res.status(200).send(response) : res.status(400).send(response.message)
@@ -27,7 +44,7 @@ app.get("/:id/sortplayers", async (req, res) => {
 app.post("/createGame", async (req, res) => {
     const username = req.body.username
     const winningNumber = req.body.winningNumber
-    const playerData = generatePlayerObj({username, guess: null, host: true, sessionID: null})
+    const playerData = generatePlayerObj({username, guess: null, host: true, sessionID: req.sessionID})
     const response = await pgFunctions.createGame({playerData, winningNumber})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
@@ -36,7 +53,7 @@ app.post("/addPlayer", async (req, res) => {
     const username = req.body.username
     const guess = req.body.guess
     const accessCode = req.body.accessCode
-    const playerData = generatePlayerObj({username, guess, host: false, sessionID: null})
+    const playerData = generatePlayerObj({username, guess, host: false, sessionID: req.sessionID})
     const response = await pgFunctions.addPlayer({playerData, accessCode})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
@@ -45,6 +62,14 @@ app.delete("/:id/deleteGame", async (req, res) => {
     // add middleware to verify that creator/host is ending game
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
+    response.status ? res.status(200).send(response) : res.status(400).send(response)
+})
+
+
+app.post("/deletePlayer", async (req, res) => {
+    const playerID = req.body.playerID
+    const accessCode = req.body.accessCode
+    const response = await pgFunctions.deletePlayer({playerID, accessCode})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
