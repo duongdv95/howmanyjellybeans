@@ -19,7 +19,7 @@ async function sortPlayerRank({accessCode}) {
     // return sorted array of how close players are to the winning number
     // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
     const [winningNumberResponse] = await getWinningNumber({accessCode});
-    var playersResponse = await getPlayers({accessCode})
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
     var playersArrayWithHost = playersResponse.message;
     var playersArray = playersArrayWithHost.slice(1);
@@ -53,10 +53,39 @@ async function deleteGame({accessCode}) {
     return (response) ? {status: true, message: "Succesfully deleted game"} : {status: false, message: "Invalid access code"}
 }
 
-async function getPlayers({accessCode}) {
+async function getPlayers(args) {
+    const accessCode = args.accessCode || null;
+    const revealSessionID = args.revealSessionID || false;
     const [response] = await knex("games").where({access_code: accessCode}).select("players")
-    return response ? {status: true, message: response.players} : {status: false, message: "Invalid access code"}
+    if(!response) {
+        return {status: false, message: "Invalid access code"}
+    }
+    const playersArray = revealSessionID ? response.players : response.players.map(function(obj) {
+        var removeSessionID = {
+            "username": obj.username, 
+            "guess":obj.guess, 
+            "host": obj.host,
+            "id": obj.id}
+        return removeSessionID
+    })
+    return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
 }
+// async function getPlayers({accessCode}) {
+//     const [response] = await knex("games").where({access_code: accessCode}).select("players")
+//     if(!response) {
+//         return {status: false, message: "Invalid access code"}
+//     }
+//     const playersArray = response.players.map(function(obj) {
+//         var removeSessionID = {
+//             "username": obj.username, 
+//             "guess":obj.guess, 
+//             "host": obj.host,
+//             "id": obj.id}
+//         return removeSessionID
+//     })
+//     return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
+// }
+
 async function addPlayer({playerData, accessCode}) {
     if(playerData.username.length === 0 || playerData.guess.length === 0) {
         return {status: false, message: "Invalid access code."}
@@ -79,7 +108,7 @@ async function addPlayer({playerData, accessCode}) {
 
 function uniqueGuess({guess, playersArray}) {
     let uniqueGuess = true;
-    for(let i = 1; i < playersArray.length; i++) {
+    for(let i = 0; i < playersArray.length; i++) {
         if(playersArray[i].guess === guess) {
             uniqueGuess = false
             break
@@ -88,9 +117,36 @@ function uniqueGuess({guess, playersArray}) {
     return uniqueGuess
 }
 
-function updatePlayer({playerName, accessCode}) {
+function getPlayerIndex({playersArray, playerID}) {
+    let index = null;
+    for(let i = 0; i < playersArray.length; i++) {
+        if(playersArray[i].id == playerID) {
+            index = i;
+            break
+        }
+    }
+    return index
+}
+async function updatePlayer({playerID, accessCode, guess}) {
     // should players be allowed to update their guesses?
     // or only permit host to update people's guesses
+    var playersResponse = await getPlayers({accessCode})
+    if(!playersResponse.status) {return playersResponse}
+    var playersArray = playersResponse.message
+    var index = getPlayerIndex({playersArray, playerID})
+
+    if(index == null){
+        return {status: false, message: "Player not found."}
+    }
+    if (uniqueGuess({guess, playersArray})) {
+        playersArray[index].guess = guess
+        const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+        if (updatePlayerResponse) {
+            return {status: true, message: playersArray}
+        }
+    } else {
+        return {status: false, message: "Did not update, guess already in DB."}
+    }
 }
 
 async function deletePlayer({playerID, accessCode}) {
@@ -98,15 +154,9 @@ async function deletePlayer({playerID, accessCode}) {
     var playersResponse = await getPlayers({accessCode})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
-    
-    let index;
-    for(let i = 0; i < playersArray.length; i++) {
-        if(playersArray[i].id == playerID) {
-            index = i;
-            break
-        }
-    }
-    if(!index){
+    var index = getPlayerIndex({playersArray, playerID})
+
+    if(index == null){
         return {status: false, message: "Player not found."}
     }
     playersArray.splice(index, 1)
@@ -116,7 +166,6 @@ async function deletePlayer({playerID, accessCode}) {
     } else {
         return {status: false, message: "Error deleting player!"}
     }
-    
 }
 
 module.exports = {
@@ -125,5 +174,6 @@ module.exports = {
     getPlayers,
     deleteGame,
     sortPlayerRank,
-    deletePlayer
+    deletePlayer,
+    updatePlayer
 }

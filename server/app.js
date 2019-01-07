@@ -33,7 +33,8 @@ app.get("/:id/players", async (req, res) => {
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
-app.get("/:id/sortplayers", async (req, res) => {
+// Restricted to host
+app.get("/:id/sortplayers", isHost, async (req, res) => {
     console.log("Inside homepage")
     console.log(req.sessionID)
     const accessCode = req.params.id
@@ -58,18 +59,26 @@ app.post("/addPlayer", async (req, res) => {
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
+// Restricted to host
 app.delete("/:id/deleteGame", async (req, res) => {
-    // add middleware to verify that creator/host is ending game
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
-
-app.post("/deletePlayer", async (req, res) => {
+// Restricted to host
+app.put("/deletePlayer", async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({playerID, accessCode})
+    response.status ? res.status(200).send(response) : res.status(400).send(response)
+})
+
+app.put("/updatePlayer", async (req, res) => {
+    const playerID = req.body.playerID
+    const accessCode = req.body.accessCode
+    const guess = req.body.guess
+    const response = await pgFunctions.updatePlayer({playerID, accessCode, guess})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
@@ -80,6 +89,20 @@ var generatePlayerObj = function playerData({username, guess, host, sessionID}) 
         host,
         sessionID,
     }
+}
+
+async function isHost(req, res, next) {
+    const sessionID = req.session.id
+    const accessCode = req.params.id
+    const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
+    const playersArray = response.message
+    for(let i = 0; i < playersArray.length; i++) {
+        if(playersArray[i].sessionID == sessionID) {
+            console.log(playersArray[i].sessionID, sessionID)
+            return next()
+        }
+    }
+    res.status(400).send("Unauthorized")
 }
 
 const port = 5000;
