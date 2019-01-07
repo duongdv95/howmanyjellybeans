@@ -26,7 +26,7 @@ app.use(session({
 }));
 
 app.get("/:id/players", async (req, res) => {
-    console.log("Inside homepage")
+    console.log("Inside players")
     console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.getPlayers({accessCode});
@@ -34,8 +34,8 @@ app.get("/:id/players", async (req, res) => {
 })
 
 // Restricted to host
-app.get("/:id/sortplayers", isHost, async (req, res) => {
-    console.log("Inside homepage")
+app.get("/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
+    console.log("Inside sortplayers")
     console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.sortPlayerRank({accessCode});
@@ -60,21 +60,21 @@ app.post("/addPlayer", async (req, res) => {
 })
 
 // Restricted to host
-app.delete("/:id/deleteGame", async (req, res) => {
+app.delete("/:id/deleteGame", isAllowed({role: "host"}), isAllowed, async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
 // Restricted to host
-app.put("/deletePlayer", async (req, res) => {
+app.put("/deletePlayer", isAllowed({role: "host"}), async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({playerID, accessCode})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
-app.put("/updatePlayer", async (req, res) => {
+app.put("/updatePlayer", isAllowed({role: "host"}), async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const guess = req.body.guess
@@ -91,20 +91,26 @@ var generatePlayerObj = function playerData({username, guess, host, sessionID}) 
     }
 }
 
-async function isHost(req, res, next) {
-    const sessionID = req.session.id
-    const accessCode = req.params.id
-    const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
-    const playersArray = response.message
-    for(let i = 0; i < playersArray.length; i++) {
-        if(playersArray[i].sessionID == sessionID) {
-            console.log(playersArray[i].sessionID, sessionID)
-            return next()
+function isAllowed(args) {
+    const role = args.role //"host" or "player"
+    var isHost = (role === "host") ? true : false
+    return async function (req, res, next) {
+        const sessionID = req.session.id
+        const accessCode = req.params.id
+        const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
+        const playersArray = response.message
+        const condition = function(i) {
+            return (isHost) ? (playersArray[i].sessionID == sessionID && playersArray[i].host == true) : (playersArray[i].sessionID == sessionID)
         }
+        for(let i = 0; i < playersArray.length; i++) {
+            if(condition(i)) {
+                return next()
+            }
+        }
+        res.status(400).send({status: false, message: "Unauthorized"})
     }
-    res.status(400).send("Unauthorized")
 }
-
+    
 const port = 5000;
 app.listen(port, function() {
   console.log("Express server started.")

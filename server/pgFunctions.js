@@ -70,21 +70,6 @@ async function getPlayers(args) {
     })
     return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
 }
-// async function getPlayers({accessCode}) {
-//     const [response] = await knex("games").where({access_code: accessCode}).select("players")
-//     if(!response) {
-//         return {status: false, message: "Invalid access code"}
-//     }
-//     const playersArray = response.players.map(function(obj) {
-//         var removeSessionID = {
-//             "username": obj.username, 
-//             "guess":obj.guess, 
-//             "host": obj.host,
-//             "id": obj.id}
-//         return removeSessionID
-//     })
-//     return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
-// }
 
 async function addPlayer({playerData, accessCode}) {
     if(playerData.username.length === 0 || playerData.guess.length === 0) {
