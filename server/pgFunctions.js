@@ -22,7 +22,7 @@ async function sortPlayerRank({accessCode}) {
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
     var playersArrayWithHost = playersResponse.message;
-    var playersArray = playersArrayWithHost.slice(1);
+    var playersArray = playersArrayWithHost.filter(element => element.host == false)
     var winningNumber = winningNumberResponse.winning_number
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
@@ -112,9 +112,13 @@ function getPlayerIndex({playersArray, playerID}) {
     }
     return index
 }
-async function updatePlayer({playerID, accessCode, guess}) {
+async function updatePlayer(args) {
     // should players be allowed to update their guesses?
     // or only permit host to update people's guesses
+    const playerID = args.playerID
+    const accessCode = args.accessCode
+    const guess = args.guess
+    const host = args.host || false
     var playersResponse = await getPlayers({accessCode})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
@@ -125,6 +129,7 @@ async function updatePlayer({playerID, accessCode, guess}) {
     }
     if (uniqueGuess({guess, playersArray})) {
         playersArray[index].guess = guess
+        playersArray[index].host = host
         const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
         if (updatePlayerResponse) {
             return {status: true, message: playersArray}

@@ -25,7 +25,7 @@ app.use(session({
     cookie: {maxAge: null}
 }));
 
-app.get("/:id/players", async (req, res) => {
+app.get("/:id/players", isAllowed({role: "host"}), async (req, res) => {
     console.log("Inside players")
     console.log(req.sessionID)
     const accessCode = req.params.id
@@ -78,7 +78,8 @@ app.put("/updatePlayer", isAllowed({role: "host"}), async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const guess = req.body.guess
-    const response = await pgFunctions.updatePlayer({playerID, accessCode, guess})
+    const host = req.body.host
+    const response = await pgFunctions.updatePlayer({playerID, accessCode, guess, host})
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
@@ -96,7 +97,8 @@ function isAllowed(args) {
     var isHost = (role === "host") ? true : false
     return async function (req, res, next) {
         const sessionID = req.session.id
-        const accessCode = req.params.id
+        const accessCode = req.params.id || req.body.accessCode
+        console.log(accessCode)
         const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
         const playersArray = response.message
         const condition = function(i) {
