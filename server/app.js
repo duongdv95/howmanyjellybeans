@@ -25,7 +25,7 @@ app.use(session({
     cookie: {maxAge: null}
 }));
 
-app.get("/:id/players", isAllowed({role: "host"}), async (req, res) => {
+app.get("/:id/players", async (req, res) => {
     console.log("Inside players")
     console.log(req.sessionID)
     const accessCode = req.params.id
@@ -60,9 +60,10 @@ app.post("/addPlayer", async (req, res) => {
 })
 
 // Restricted to host
-app.delete("/:id/deleteGame", isAllowed({role: "host"}), isAllowed, async (req, res) => {
+app.delete("/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
+    console.log(response)
     response.status ? res.status(200).send(response) : res.status(400).send(response)
 })
 
@@ -98,13 +99,14 @@ function isAllowed(args) {
     return async function (req, res, next) {
         const sessionID = req.session.id
         const accessCode = req.params.id || req.body.accessCode
-        console.log(accessCode)
         const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
         const playersArray = response.message
+        // console.log(sessionID, accessCode, response, playersArray)
         const condition = function(i) {
             return (isHost) ? (playersArray[i].sessionID == sessionID && playersArray[i].host == true) : (playersArray[i].sessionID == sessionID)
         }
         for(let i = 0; i < playersArray.length; i++) {
+            // console.log(playersArray[i].sessionID, sessionID, playersArray[i].host)
             if(condition(i)) {
                 return next()
             }

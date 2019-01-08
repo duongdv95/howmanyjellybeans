@@ -60,14 +60,14 @@ async function getPlayers(args) {
     if(!response) {
         return {status: false, message: "Invalid access code"}
     }
-    const playersArray = revealSessionID ? response.players : response.players.map(function(obj) {
+    const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         var removeSessionID = {
             "username": obj.username, 
             "guess":obj.guess, 
             "host": obj.host,
             "id": obj.id}
-        return removeSessionID
-    })
+            return removeSessionID
+        })
     return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
 }
 
@@ -76,7 +76,7 @@ async function addPlayer({playerData, accessCode}) {
         return {status: false, message: "Invalid access code."}
     }
     const guess = playerData.guess
-    var playersResponse = await getPlayers({accessCode})
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     if (uniqueGuess({guess, playersArray})) {
@@ -119,7 +119,7 @@ async function updatePlayer(args) {
     const accessCode = args.accessCode
     const guess = args.guess
     const host = args.host || false
-    var playersResponse = await getPlayers({accessCode})
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     var index = getPlayerIndex({playersArray, playerID})
@@ -141,7 +141,7 @@ async function updatePlayer(args) {
 
 async function deletePlayer({playerID, accessCode}) {
     // allow host to remove player or allow player to remove themself ??
-    var playersResponse = await getPlayers({accessCode})
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     var index = getPlayerIndex({playersArray, playerID})
