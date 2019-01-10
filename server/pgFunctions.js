@@ -112,30 +112,48 @@ function getPlayerIndex({playersArray, playerID}) {
     }
     return index
 }
+
+// Refactor, functions looks too big
 async function updatePlayer(args) {
-    // should players be allowed to update their guesses?
-    // or only permit host to update people's guesses
     const playerID = args.playerID
     const accessCode = args.accessCode
     const guess = args.guess
-    const host = args.host || false
+    const host = args.host
+    if(guess && isNaN(guess)) return {status: false, message: "Invalid guess"}
+
+    var guessUndefined = false
+    var hostUndefined = false
+    if(guess == undefined) {
+        guessUndefined = true
+    } else if(host == undefined) {
+        hostUndefined = true
+    } else if(!guessUndefined && !hostUndefined) {
+        return {status: false, message: "Update either guess or host."}
+    }
+
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     var index = getPlayerIndex({playersArray, playerID})
+    if(index == null) return {status: false, message: "Player not found."}
+    
+    let isOnlyHost = (guessUndefined && !hostUndefined)
+    let hostStatusIsDifferent = (playersArray[index].host != host)
+    let guessIsUnique = (guess && uniqueGuess({guess, playersArray}))
 
-    if(index == null){
-        return {status: false, message: "Player not found."}
-    }
-    if (uniqueGuess({guess, playersArray})) {
-        playersArray[index].guess = guess
-        playersArray[index].host = host
+    let condition = (isOnlyHost) ? (hostStatusIsDifferent) : (guessIsUnique)
+    if (condition) {
+        isOnlyHost ? playersArray[index].host = host : playersArray[index].guess = guess
         const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
-        if (updatePlayerResponse) {
-            return {status: true, message: playersArray}
-        }
+        if (updatePlayerResponse) return {status: true, message: playersArray}
     } else {
-        return {status: false, message: "Did not update, guess already in DB."}
+        let message
+        if(guess && !(uniqueGuess({guess, playersArray}))) {
+            message = "Did not update, guess already in DB."
+        } else {
+            message = `Did not update, host status is already ${playersArray[index].host}.`
+        }
+        return {status: false, message}
     }
 }
 
