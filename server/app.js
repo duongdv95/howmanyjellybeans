@@ -30,7 +30,7 @@ app.get("/:id/players", async (req, res) => {
     console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.getPlayers({accessCode});
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 // Restricted to host
@@ -39,7 +39,7 @@ app.get("/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
     console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.sortPlayerRank({accessCode});
-    response ? res.status(200).send(response) : res.status(400).send(response.message)
+    response ? res.status(200).json(response) : res.status(400).json(response.message)
 })
 
 app.post("/createGame", async (req, res) => {
@@ -47,7 +47,7 @@ app.post("/createGame", async (req, res) => {
     const winningNumber = req.body.winningNumber
     const playerData = generatePlayerObj({username, guess: null, host: true, sessionID: req.sessionID})
     const response = await pgFunctions.createGame({playerData, winningNumber})
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 app.post("/addPlayer", async (req, res) => {
@@ -56,7 +56,7 @@ app.post("/addPlayer", async (req, res) => {
     const accessCode = req.body.accessCode
     const playerData = generatePlayerObj({username, guess, host: false, sessionID: req.sessionID})
     const response = await pgFunctions.addPlayer({playerData, accessCode})
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 // Restricted to host
@@ -64,7 +64,7 @@ app.delete("/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
     console.log(response)
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 // Restricted to host
@@ -72,7 +72,7 @@ app.put("/deletePlayer", isAllowed({role: "host"}), async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({playerID, accessCode})
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 app.put("/updatePlayer", isAllowed({role: "host"}), async (req, res) => {
@@ -81,13 +81,13 @@ app.put("/updatePlayer", isAllowed({role: "host"}), async (req, res) => {
     const guess = req.body.guess
     const host = req.body.host
     const response = await pgFunctions.updatePlayer({playerID, accessCode, guess, host})
-    response.status ? res.status(200).send(response) : res.status(400).send(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
         username,
-        guess,
+        guess: guess + "",
         host,
         sessionID,
     }
@@ -111,7 +111,7 @@ function isAllowed(args) {
                 return next()
             }
         }
-        res.status(400).send({status: false, message: "Unauthorized"})
+        res.status(400).json({status: false, message: "Unauthorized"})
     }
 }
     

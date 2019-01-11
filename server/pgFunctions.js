@@ -16,8 +16,6 @@ function getWinningNumber({accessCode}) {
 }
 
 async function sortPlayerRank({accessCode}) {
-    // return sorted array of how close players are to the winning number
-    // [{name: player1, guess: 576, rank: 1}, {name: player2, guess: 646, rank: 2}, etc...]
     const [winningNumberResponse] = await getWinningNumber({accessCode});
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
@@ -27,7 +25,17 @@ async function sortPlayerRank({accessCode}) {
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
     })
-    return {status: true, message: playersArray}
+    const rankedPlayersArray = playersArray.map(function(obj, index) {
+        var removeSessionID = {
+            "username": obj.username, 
+            "guess":obj.guess, 
+            "host": obj.host,
+            "sessionID": obj.sessionID,
+            "id": obj.id,
+            "rank": index + 1}
+            return removeSessionID
+    })
+    return {status: true, message: rankedPlayersArray}
 }
 
 async function createGame({playerData, winningNumber}) {
@@ -35,22 +43,22 @@ async function createGame({playerData, winningNumber}) {
         return {status: false, message: "Invalid username or winning number"}
     } else {
         playerData.id = shortid.generate();
+        const access_code = generateAccessCode()
         const response = await knex("games").insert(
             {
-            access_code: generateAccessCode(), 
+            access_code, 
             players: JSON.stringify([playerData]), 
             winning_number: winningNumber,
             game_end: false
             }
         )
-        return response ? {status: true, message: "Succesfully created game."} : {status: false, message: "Error! could not create game."}
+        return response ? {status: true, message: access_code} : {status: false, message: "Error! could not create game."}
     }
-    
 }
 
 async function deleteGame({accessCode}) {
     const response = await knex("games").where({access_code: accessCode}).del();
-    return (response) ? {status: true, message: "Succesfully deleted game"} : {status: false, message: "Invalid access code"}
+    return (response) ? {status: true, message: `Succesfully deleted game /${accessCode}`} : {status: false, message: "Invalid access code"}
 }
 
 async function getPlayers(args) {
@@ -94,7 +102,7 @@ async function addPlayer({playerData, accessCode}) {
 function uniqueGuess({guess, playersArray}) {
     let uniqueGuess = true;
     for(let i = 0; i < playersArray.length; i++) {
-        if(playersArray[i].guess === guess) {
+        if(playersArray[i].guess == guess) {
             uniqueGuess = false
             break
         }
@@ -114,22 +122,19 @@ function getPlayerIndex({playersArray, playerID}) {
 }
 
 // Refactor, functions looks too big
+// Also, if a host changes a player to a host, should it be permanent? As in hosts can't be converted back to players
 async function updatePlayer(args) {
     const playerID = args.playerID
     const accessCode = args.accessCode
-    const guess = args.guess
     const host = args.host
+    const guess = args.guess
     if(guess && isNaN(guess)) return {status: false, message: "Invalid guess"}
 
     var guessUndefined = false
     var hostUndefined = false
-    if(guess == undefined) {
-        guessUndefined = true
-    } else if(host == undefined) {
-        hostUndefined = true
-    } else if(!guessUndefined && !hostUndefined) {
-        return {status: false, message: "Update either guess or host."}
-    }
+    if(guess == undefined) guessUndefined = true
+    if(host == undefined) hostUndefined = true
+    if(!guessUndefined && !hostUndefined) return {status: false, message: "Update either guess or host."}
 
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
@@ -143,7 +148,12 @@ async function updatePlayer(args) {
 
     let condition = (isOnlyHost) ? (hostStatusIsDifferent) : (guessIsUnique)
     if (condition) {
-        isOnlyHost ? playersArray[index].host = host : playersArray[index].guess = guess
+        if (isOnlyHost) {
+            playersArray[index].host = host
+            if(host == true) playersArray[index].guess = null
+        } else {
+            playersArray[index].guess = guess
+        }
         const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
         if (updatePlayerResponse) return {status: true, message: playersArray}
     } else {
