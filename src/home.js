@@ -1,12 +1,15 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import './home.css'
 
 // Components Hierarchy
 // -HOME
 //    -IMG
 //    -OPTIONS [user inputs]
-//        -NEW GAME    
-//        -JOIN GAME    
+//        -CREATE GAME
+//        -GAME FORM    
+//        -JOIN GAME
+//        -JOIN FORM    
 //    -Footer
 
 function Image() {
@@ -31,6 +34,12 @@ function CreateGameButton(props) {
     )
 }
 
+// function GameForm() {
+//     return (
+
+//     )
+// }
+
 function JoinGameButton(props) {
     return (
         <button onClick={() => props.onClick("joinGame")}>
@@ -42,7 +51,8 @@ function JoinGameButton(props) {
 class Options extends React.Component {
     renderCreateGame() {
         return (
-            <CreateGameButton 
+            <CreateGameButton
+            key = {"createGame"} 
             onClick={(option) => this.props.onClick(option)}
             />
         );
@@ -50,16 +60,30 @@ class Options extends React.Component {
 
     renderJoinGame() {
         return (
-            <JoinGameButton 
+            <JoinGameButton
+            key = {"joinGame"}
             onClick={(option) => this.props.onClick(option)}
             />
         );
     }
+
     render() {
+        const displayArray = this.props.display
+        const options = {
+            "createGame": this.renderCreateGame(),
+            "joinGame": this.renderJoinGame()
+        }
+        const display = displayArray.map(function(element) {
+            let option
+            if(options.hasOwnProperty(element)) {
+                option =options[element]
+            }
+            return (option)
+        })
+        console.log(display)
         return (
             <div className ="options">
-                {this.renderCreateGame()}
-                {this.renderJoinGame()}
+                {display}
             </div>
         )
     }
@@ -70,7 +94,8 @@ class Home extends React.Component {
         super(props)
         this.state = {
             createGame: false,
-            joinGame: false
+            joinGame: false,
+            display: ["createGame", "joinGame"]
         }
     }
 
@@ -94,8 +119,8 @@ class Home extends React.Component {
         return (
             <div className = "home">
                 <Image/>
-                <h1>How many jelly beans??</h1>
-                <Options
+                <Options 
+                display = {this.state.display}
                 onClick = {(options) => this.handleClick(options)}
                 />
                 <Footer/>
