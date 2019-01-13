@@ -26,6 +26,14 @@ function Footer() {
     )
 }
 
+function BackButton(props) {
+    return (
+        <button onClick={() => props.onClick("backButton")}>
+        Back
+        </button>
+    )
+}
+
 function CreateGameButton(props) {
     return (
         <button onClick={() => props.onClick("createGame")}>
@@ -34,11 +42,25 @@ function CreateGameButton(props) {
     )
 }
 
-// function GameForm() {
-//     return (
+function GameForm() {
+    return (
+        <form>
+            <input type="text" placeholder="Enter your name"/>
+            <input type="text" placeholder="Enter the winning guess"/>
+            <input type="submit" value="Create Game"/>
+        </form>
+    )
+}
 
-//     )
-// }
+function JoinGameForm() {
+    return (
+        <form>
+            <input type="text" placeholder="Enter your name"/>
+            <input type="text" placeholder="Enter your guess"/>
+            <input type="submit" value="Join game"/>
+        </form>
+    )
+}
 
 function JoinGameButton(props) {
     return (
@@ -49,7 +71,16 @@ function JoinGameButton(props) {
 }
 
 class Options extends React.Component {
-    renderCreateGame() {
+    renderBackButton() {
+        return (
+            <BackButton
+            key = {"backButton"} 
+            onClick={(option) => this.props.onClick(option)}
+            />
+        );
+    }
+
+    renderGameButton() {
         return (
             <CreateGameButton
             key = {"createGame"} 
@@ -58,7 +89,15 @@ class Options extends React.Component {
         );
     }
 
-    renderJoinGame() {
+    renderGameForm() {
+        return (
+            <GameForm
+            key = {"gameForm"} 
+            />
+        );
+    }
+
+    renderJoinGameButton() {
         return (
             <JoinGameButton
             key = {"joinGame"}
@@ -67,11 +106,22 @@ class Options extends React.Component {
         );
     }
 
+    renderJoinGameForm() {
+        return (
+            <JoinGameForm
+            key = {"joinGameForm"} 
+            />
+        );
+    }
+
     render() {
         const displayArray = this.props.display
         const options = {
-            "createGame": this.renderCreateGame(),
-            "joinGame": this.renderJoinGame()
+            "createGame": this.renderGameButton(),
+            "joinGame": this.renderJoinGameButton(),
+            "gameForm": this.renderGameForm(),
+            "backButton": this.renderBackButton(),
+            "joinGameForm": this.renderJoinGameForm()
         }
         const display = displayArray.map(function(element) {
             let option
@@ -80,7 +130,6 @@ class Options extends React.Component {
             }
             return (option)
         })
-        console.log(display)
         return (
             <div className ="options">
                 {display}
@@ -93,8 +142,6 @@ class Home extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            createGame: false,
-            joinGame: false,
             display: ["createGame", "joinGame"]
         }
     }
@@ -102,14 +149,13 @@ class Home extends React.Component {
     handleClick(option) {
         switch(option) {
             case "createGame":
-                var createGame = this.state.createGame
-                createGame = !createGame
-                this.setState({createGame})
+                this.setState({display: ["gameForm", "backButton"]})
                 break
             case "joinGame":
-                var joinGame = this.state.joinGame
-                joinGame = !joinGame
-                this.setState({joinGame})
+                this.setState({display: ["joinGameForm", "backButton"]})
+                break
+            case "backButton":
+                this.setState({display: ["createGame", "joinGame"]})
                 break
             default: console.log("error")
         }
