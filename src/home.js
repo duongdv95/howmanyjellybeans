@@ -1,6 +1,7 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import './home.css'
+const axios = require("axios")
 
 // Components Hierarchy
 // -HOME
@@ -44,7 +45,10 @@ function CreateGameButton(props) {
 
 function GameForm(props) {
     return (
-        <form onSubmit ={props.handleSubmit}>
+        <form 
+        name="createGameClicked"
+        onSubmit ={props.handleSubmit}
+        >
             <input 
             name="hostName"
             type="text" 
@@ -56,7 +60,7 @@ function GameForm(props) {
              name="winningGuess"
              type="text" 
              placeholder="Enter the winning guess"
-             value={props.winningGuess}
+             value={props.winningNumber}
              onChange ={props.handleChange}
              />
             <input type="submit" value="Create Game"/>
@@ -163,7 +167,20 @@ class Home extends React.Component {
             createGameClicked: false,
             hostName: "",
             playername: "",
-            winningGuess: null
+            winningNumber: null,
+            accessCode: null
+        }
+    }
+
+    getAccessCode(hostName, winningNumber) {
+        try {
+            const response = axios.post("/createGame", {
+                "username": hostName,
+                "winningNumber": winningNumber
+            })
+            return response
+        } catch (error) {
+            console.error(error)
         }
     }
 
@@ -182,9 +199,27 @@ class Home extends React.Component {
         }
     }
     
-    handleSubmit(event) {
-        this.setState({createGameClicked: true})
+    async handleSubmit(event) {
         event.preventDefault()
+        const eventType = event.target.name
+        const hostName = this.state.hostName
+        const winningNumber = this.state.winningNumber
+        switch(eventType) {
+            case "createGameClicked":
+                if(
+                    winningNumber &&
+                    isNumerical(winningNumber) &&
+                    hostName
+                ) {
+                    this.setState({createGameClicked: true})
+                    const response = await this.getAccessCode(hostName, winningNumber)
+                    const accessCode = response.data.message
+                    const gameURL = `/${accessCode}`
+                    this.props.history.push(gameURL)
+                }
+                break
+            default: console.log("error")
+        }
     }
 
     handleChange(event) {
@@ -194,12 +229,16 @@ class Home extends React.Component {
                 this.setState({hostName: event.target.value})
             break
             case "winningGuess":
-                this.setState({winningGuess: event.target.value})
+                this.setState({winningNumber: event.target.value})
+                
             break
-            default: console.log("error")
+            default: 
+                console.log("error")
         }
         
     }
+
+    
     render() {
         return (
             <div className = "home">
@@ -217,3 +256,7 @@ class Home extends React.Component {
 }
 
 export default Home
+
+function isNumerical(guess) {
+    return (isNaN(guess)) ? false : true
+}
