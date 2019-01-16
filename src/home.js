@@ -42,11 +42,23 @@ function CreateGameButton(props) {
     )
 }
 
-function GameForm() {
+function GameForm(props) {
     return (
-        <form>
-            <input type="text" placeholder="Enter your name"/>
-            <input type="text" placeholder="Enter the winning guess"/>
+        <form onSubmit ={props.handleSubmit}>
+            <input 
+            name="hostName"
+            type="text" 
+            placeholder="Enter your name"
+            value={props.hostname}
+            onChange ={props.handleChange}
+            />
+            <input
+             name="winningGuess"
+             type="text" 
+             placeholder="Enter the winning guess"
+             value={props.winningGuess}
+             onChange ={props.handleChange}
+             />
             <input type="submit" value="Create Game"/>
         </form>
     )
@@ -92,7 +104,9 @@ class Options extends React.Component {
     renderGameForm() {
         return (
             <GameForm
-            key = {"gameForm"} 
+            key = {"gameForm"}
+            handleSubmit={this.props.handleSubmit}
+            handleChange={this.props.handleChange}
             />
         );
     }
@@ -126,7 +140,7 @@ class Options extends React.Component {
         const display = displayArray.map(function(element) {
             let option
             if(options.hasOwnProperty(element)) {
-                option =options[element]
+                option = options[element]
             }
             return (option)
         })
@@ -141,8 +155,15 @@ class Options extends React.Component {
 class Home extends React.Component {
     constructor(props) {
         super(props)
+
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.handleChange = this.handleChange.bind(this)
         this.state = {
-            display: ["createGame", "joinGame"]
+            display: ["createGame", "joinGame"],
+            createGameClicked: false,
+            hostName: "",
+            playername: "",
+            winningGuess: null
         }
     }
 
@@ -161,13 +182,33 @@ class Home extends React.Component {
         }
     }
     
+    handleSubmit(event) {
+        this.setState({createGameClicked: true})
+        event.preventDefault()
+    }
+
+    handleChange(event) {
+        const eventType = event.target.name
+        switch(eventType) {
+            case "hostName":
+                this.setState({hostName: event.target.value})
+            break
+            case "winningGuess":
+                this.setState({winningGuess: event.target.value})
+            break
+            default: console.log("error")
+        }
+        
+    }
     render() {
         return (
             <div className = "home">
                 <Image/>
-                <Options 
+                <Options
                 display = {this.state.display}
                 onClick = {(options) => this.handleClick(options)}
+                handleSubmit = {this.handleSubmit}
+                handleChange = {this.handleChange}
                 />
                 <Footer/>
             </div>
