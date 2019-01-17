@@ -57,7 +57,7 @@ function GameForm(props) {
             onChange ={props.handleChange}
             />
             <input
-             name="winningGuess"
+             name="winningNumber"
              type="text" 
              placeholder="Enter the winning guess"
              value={props.winningNumber}
@@ -68,11 +68,33 @@ function GameForm(props) {
     )
 }
 
-function JoinGameForm() {
+function JoinGameForm(props) {
     return (
-        <form>
-            <input type="text" placeholder="Enter your name"/>
-            <input type="text" placeholder="Enter your guess"/>
+        <form
+        name="joinGameClicked"
+        onSubmit ={props.handleSubmit}
+        >
+            <input 
+            name="accessCode"
+            type="text" 
+            placeholder="Enter an access code"
+            value={props.accessCode}
+            onChange ={props.handleChange}
+            />     
+            <input 
+            name="playerName"
+            type="text" 
+            placeholder="Enter your name"
+            value={props.hostname}
+            onChange ={props.handleChange}
+            />
+            <input 
+            name="playerGuess"
+            type="text" 
+            placeholder="Enter your guess"
+            value={props.playerGuess}
+            onChange ={props.handleChange}
+            />
             <input type="submit" value="Join game"/>
         </form>
     )
@@ -127,7 +149,9 @@ class Options extends React.Component {
     renderJoinGameForm() {
         return (
             <JoinGameForm
-            key = {"joinGameForm"} 
+            key = {"joinGameForm"}
+            handleSubmit={this.props.handleSubmit}
+            handleChange={this.props.handleChange}
             />
         );
     }
@@ -168,7 +192,11 @@ class Home extends React.Component {
             hostName: "",
             playername: "",
             winningNumber: null,
-            accessCode: null
+            accessCode: null,
+            joinGameClicked: false,
+            playerName: "",
+            playerGuess: "",
+            errorMessage: ""
         }
     }
 
@@ -180,7 +208,21 @@ class Home extends React.Component {
             })
             return response
         } catch (error) {
-            console.error(error)
+            return error.response
+        }
+    }
+
+    async joinGame(accessCode, playerName, playerGuess) {
+        try {
+            const response = await axios.post("/addplayer", 
+            {    
+                "username": playerName,
+                "guess": playerGuess,
+                "accessCode": accessCode
+            })
+            return response
+        } catch (error) {
+            return error.response
         }
     }
 
@@ -204,18 +246,34 @@ class Home extends React.Component {
         const eventType = event.target.name
         const hostName = this.state.hostName
         const winningNumber = this.state.winningNumber
+        const accessCode = this.state.accessCode
+        const playerName = this.state.playerName
+        const playerGuess = this.state.playerGuess
         switch(eventType) {
             case "createGameClicked":
                 if(
                     winningNumber &&
                     isNumerical(winningNumber) &&
-                    hostName
+                    hostName && hostName.length > 0
                 ) {
                     this.setState({createGameClicked: true})
                     const response = await this.getAccessCode(hostName, winningNumber)
-                    const accessCode = response.data.message
-                    const gameURL = `/${accessCode}`
-                    this.props.history.push(gameURL)
+                    if (response.data.status === true) {
+                        const accessCode = response.data.message
+                        this.props.history.push(`/${accessCode}`)
+                    } else {
+                        this.setState({errorMessage: response.data.message})
+                    }
+                }
+                break
+            case "joinGameClicked":
+                if(
+                    accessCode &&
+                    isNumerical(playerGuess) &&
+                    playerName && playerName.length > 0
+                ) {
+                    const response = await this.joinGame(accessCode, playerName, playerGuess)
+                    return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({errorMessage: response.data.message})
                 }
                 break
             default: console.log("error")
@@ -226,12 +284,25 @@ class Home extends React.Component {
         const eventType = event.target.name
         switch(eventType) {
             case "hostName":
-                this.setState({hostName: event.target.value})
+            this.setState({hostName: event.target.value})
             break
-            case "winningGuess":
-                this.setState({winningNumber: event.target.value})
-                
+
+            case "winningNumber":
+            this.setState({winningNumber: event.target.value})
             break
+
+            case "playerName":
+            this.setState({playerName: event.target.value})
+            break
+
+            case "accessCode":
+            this.setState({accessCode: event.target.value})
+            break
+
+            case "playerGuess":
+            this.setState({playerGuess: event.target.value})
+            break
+
             default: 
                 console.log("error")
         }
