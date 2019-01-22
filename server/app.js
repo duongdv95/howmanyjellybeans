@@ -26,8 +26,8 @@ app.use(session({
 }));
 
 app.get("/:id/players", async (req, res) => {
-    console.log("Inside players")
-    console.log(req.sessionID)
+    // console.log("Inside players")
+    // console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.getPlayers({accessCode});
     response.status ? res.status(200).json(response) : res.status(400).json(response)
@@ -35,8 +35,8 @@ app.get("/:id/players", async (req, res) => {
 
 // Restricted to host
 app.get("/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
-    console.log("Inside sortplayers")
-    console.log(req.sessionID)
+    // console.log("Inside sortplayers")
+    // console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.sortPlayerRank({accessCode});
     response ? res.status(200).json(response) : res.status(400).json(response.message)

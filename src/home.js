@@ -22,7 +22,7 @@ function Image() {
 function Footer() {
     return (
         <div className="footer">
-            <Link to={"/instructions"}>Instructions</Link>
+        <button><Link to={"/instructions"}>Instructions</Link></button>
         </div>
     )
 }
@@ -188,15 +188,13 @@ class Home extends React.Component {
         this.handleChange = this.handleChange.bind(this)
         this.state = {
             display: ["createGame", "joinGame"],
-            createGameClicked: false,
             hostName: "",
             playername: "",
             winningNumber: null,
             accessCode: null,
-            joinGameClicked: false,
             playerName: "",
             playerGuess: "",
-            errorMessage: ""
+            response: ""
         }
     }
 
@@ -256,7 +254,6 @@ class Home extends React.Component {
                     isNumerical(winningNumber) &&
                     hostName && hostName.length > 0
                 ) {
-                    this.setState({createGameClicked: true})
                     const response = await this.getAccessCode(hostName, winningNumber)
                     if (response.data.status === true) {
                         const accessCode = response.data.message
@@ -273,7 +270,7 @@ class Home extends React.Component {
                     playerName && playerName.length > 0
                 ) {
                     const response = await this.joinGame(accessCode, playerName, playerGuess)
-                    return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({errorMessage: response.data.message})
+                    return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({response: response.data})
                 }
                 break
             default: console.log("error")
@@ -311,6 +308,17 @@ class Home extends React.Component {
 
     
     render() {
+        const response = this.state.response
+        let errorMessage
+        if(response.status === false) {
+            errorMessage = (
+                <div>{response.message}</div>
+            ) 
+        } else {
+            errorMessage = (
+                <div></div>
+            )
+        }
         return (
             <div className = "home">
                 <Image/>
@@ -320,6 +328,7 @@ class Home extends React.Component {
                 handleSubmit = {this.handleSubmit}
                 handleChange = {this.handleChange}
                 />
+                {errorMessage}
                 <Footer/>
             </div>
         )

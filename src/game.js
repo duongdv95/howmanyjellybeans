@@ -1,6 +1,27 @@
 import React from "react";
 const axios = require("axios")
 
+class PlayersTable extends React.Component {
+    render() {
+        const displayPlayers = this.props.displayPlayers
+        return (
+            <table>
+                <tbody>
+                    <tr>
+                        <th>
+                            Player
+                        </th>
+                        <th>
+                            Guess
+                        </th>
+                    </tr>
+                    {displayPlayers}
+                </tbody>
+            </table>
+        )
+    }
+}
+
 class Game extends React.Component {
     constructor(props) {
         super(props)
@@ -22,11 +43,32 @@ class Game extends React.Component {
 
     async loadData() {
         const response = await this.getPlayers()
-        const players = response.data.message
+        const data = response.data.message
         if(response.data.status === true){
-            this.setState({players: players, status: true})
+            this.setState({players: data, status: true})
         } else {
-            this.setState({players: players, status: false})
+            this.setState({players: [], status: false})
+            this.setState({accessCode: data})
+        }
+    }
+
+    displayPlayers() { 
+        const players = this.state.players
+        if(this.state.status) {
+            return players.map(function(element) {
+                return (
+                    <tr key={element.id}>
+                        <td>
+                            {element.username}
+                        </td>
+                        <td>
+                            {element.guess}
+                        </td>
+                    </tr>
+                )
+            })
+        } else {
+            return (<tr><td></td></tr>)
         }
     }
 
@@ -38,22 +80,13 @@ class Game extends React.Component {
     }
 
     render() {
-        const players = this.state.players
-        const displayPlayers = (this.state.status) ? players.map(function(element) {
-            return (
-                <div key={element.id}>
-                {element.username}, {element.guess}, {element.host + ""}
-                </div>
-            )
-        }) : (
-            <div>
-                {players}
-            </div>
-        )
         return (
             <div>
-                <h1>Waiting for players...</h1>
-                {displayPlayers}
+                <h1>How many jellybeans?</h1>
+                <h3>Access Code: {this.state.accessCode}</h3>
+                <PlayersTable
+                displayPlayers = {this.displayPlayers()}
+                />
             </div>
         )
     }
