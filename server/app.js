@@ -26,10 +26,9 @@ app.use(session({
 }));
 
 app.get("/:id/players", async (req, res) => {
-    // console.log("Inside players")
-    // console.log(req.sessionID)
     const accessCode = req.params.id
-    const response = await pgFunctions.getPlayers({accessCode});
+    const sessionID = req.session.id
+    const response = await pgFunctions.getPlayers({accessCode, sessionID});
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 

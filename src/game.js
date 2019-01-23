@@ -31,6 +31,7 @@ class Options extends React.Component {
     renderLeaveButton() {
         return (
             <LeaveButton 
+            key="leaveButton"
             onClick={(option) => this.props.onClick(option)}
             />
         );
@@ -39,16 +40,23 @@ class Options extends React.Component {
     renderEndButton() {
         return (
             <EndButton
+            key="endButton"
             onClick={(option) => this.props.onClick(option)}
             />
         );
     }
 
     render() {
+        const isHost = this.props.isHost
+        const displayOptions = () => {
+            return (isHost) ? 
+            ([this.renderLeaveButton(), this.renderEndButton()]) 
+            : 
+            ([this.renderLeaveButton()])
+        }
         return (
             <div>
-                {this.renderLeaveButton()}
-                {this.renderEndButton()}
+                {displayOptions()}
             </div>
         )
     }
@@ -92,7 +100,8 @@ class Game extends React.Component {
         this.state = {
             accessCode: this.props.match.params.id,
             players: [],
-            status: false
+            status: false,
+            isHost: false
         }
     }
 
@@ -110,10 +119,14 @@ class Game extends React.Component {
         const data = response.data.message
         if(response.data.status === true){
             this.setState({players: data, status: true})
+            if(response.data.isHost === true) {
+                this.setState({isHost: true})
+            }
         } else {
             this.setState({players: [], status: false})
             this.setState({accessCode: data})
         }
+        
     }
 
     playerMap() { 
@@ -187,6 +200,7 @@ class Game extends React.Component {
                 />
                 <Options
                 onClick = {(option) => this.handleClick(option)}
+                isHost = {this.state.isHost}
                 />
             </div>
         )

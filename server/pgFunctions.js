@@ -74,9 +74,15 @@ async function gameStatus({accessCode}) {
 async function getPlayers(args) {
     const accessCode = args.accessCode || null;
     const revealSessionID = args.revealSessionID || false;
+    const sessionID = args.sessionID || null
     const [response] = await knex("games").where({access_code: accessCode}).select("players")
     if(!response) {
         return {status: false, message: "Invalid access code"}
+    }
+    let index, isHost
+    if(sessionID) {
+        index = getPlayerIndex({playersArray: response.players, sessionID})
+        isHost = response.players[index].host
     }
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         var removeSessionID = {
@@ -86,7 +92,7 @@ async function getPlayers(args) {
             "id": obj.id}
             return removeSessionID
         })
-    return response ? {status: true, message: playersArray} : {status: false, message: "Invalid access code"}
+    return response ? {status: true, message: playersArray, isHost} : {status: false, message: "Invalid access code"}
 }
 
 async function addPlayer({playerData, accessCode}) {
