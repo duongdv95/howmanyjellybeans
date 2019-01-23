@@ -68,10 +68,17 @@ app.delete("/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
 })
 
 // Restricted to host
-app.put("/deletePlayer", isAllowed({role: "host"}), async (req, res) => {
+app.put("/deletePlayer", isAllowed({role: "player"}), async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({playerID, accessCode})
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
+})
+
+app.put("/leaveGame", isAllowed({role: "player"}), async (req, res) => {
+    const sessionID = req.session.id
+    const accessCode = req.body.accessCode
+    const response = await pgFunctions.deletePlayer({sessionID, accessCode})
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 

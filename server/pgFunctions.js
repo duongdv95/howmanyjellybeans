@@ -110,14 +110,20 @@ function uniqueGuess({guess, playersArray}) {
     return uniqueGuess
 }
 
-function getPlayerIndex({playersArray, playerID}) {
+function getPlayerIndex(args) {
+    const playersArray = args.playersArray
+    const playerID = args.playerID
+    const sessionID = args.sessionID
     let index = null;
+    let arg1 = (playerID) ? "id" : "sessionID"
+    let arg2 = (playerID) ? playerID : sessionID
     for(let i = 0; i < playersArray.length; i++) {
-        if(playersArray[i].id == playerID) {
+        if(playersArray[i][arg1] == arg2) {
             index = i;
             break
         }
     }
+
     return index
 }
 
@@ -167,13 +173,15 @@ async function updatePlayer(args) {
     }
 }
 
-async function deletePlayer({playerID, accessCode}) {
+async function deletePlayer(args) {
     // allow host to remove player or allow player to remove themself ??
+    const accessCode = args.accessCode
+    const playerID = args.playerID
+    const sessionID = args.sessionID
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
-    var index = getPlayerIndex({playersArray, playerID})
-
+    var index = (playerID) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID})
     if(index == null){
         return {status: false, message: "Player not found."}
     }

@@ -1,7 +1,7 @@
 import React from "react";
 import {Link} from "react-router-dom";
 import './home.css'
-const axios = require("axios")
+import axios from "axios"
 
 // Components Hierarchy
 // -HOME

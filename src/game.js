@@ -1,23 +1,68 @@
 import React from "react";
-const axios = require("axios")
+import axios from "axios"
 
-class PlayersTable extends React.Component {
-    render() {
-        const displayPlayers = this.props.displayPlayers
+// Components Hierarchy
+// -Game
+//    -PLAYER TABLE [host inputs]
+//        -DELETE PLAYER
+//        -UPDATE PLAYER GUESS
+//    -OPTIONS
+//        -LEAVE GAME
+//        -END GAME
+//    -Footer
+
+function LeaveButton(props) {
+    return (
+        <button onClick={() => props.onClick("leaveButton")}>
+        Leave Game
+        </button>
+    )
+}
+
+class Options extends React.Component {
+    renderLeavebutton() {
         return (
-            <table>
-                <tbody>
-                    <tr>
-                        <th>
-                            Player
-                        </th>
-                        <th>
-                            Guess
-                        </th>
-                    </tr>
-                    {displayPlayers}
-                </tbody>
-            </table>
+            <LeaveButton 
+            onClick={(option) => this.props.onClick(option)}
+            />
+        );
+    }
+    render() {
+        return (
+            this.renderLeavebutton()
+        )
+    }
+}
+
+class PlayerTable extends React.Component {
+
+    render() {
+        const playerMap = this.props.playerMap
+        const players = this.props.players
+        const displayPlayers = () => {
+            return (players.length !== 0) ? 
+            (
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>
+                                Player
+                            </th>
+                            <th>
+                                Guess
+                            </th>
+                        </tr>
+                        {playerMap}
+                    </tbody>
+                </table>
+            ) 
+            : 
+            (<div>Loading...</div>)
+        }
+        return (
+            <div>
+                {displayPlayers()}
+            </div>
         )
     }
 }
@@ -52,7 +97,7 @@ class Game extends React.Component {
         }
     }
 
-    displayPlayers() { 
+    playerMap() { 
         const players = this.state.players
         if(this.state.status) {
             return players.map(function(element) {
@@ -72,6 +117,25 @@ class Game extends React.Component {
         }
     }
 
+    handleClick(option) {
+        if(option === "leaveButton") {
+            this.leaveGame()
+        }
+    }
+
+    async leaveGame(playerID, accessCode) {
+        try {
+            const response = await axios.post("/addplayer", 
+            {    
+                "playerID": playerID,
+                "accessCode": accessCode
+            })
+            return response
+        } catch (error) {
+            return error.response
+        }
+    }
+    
     componentDidMount() {
         this.loadData()
         setInterval(() => {
@@ -84,8 +148,12 @@ class Game extends React.Component {
             <div>
                 <h1>How many jellybeans?</h1>
                 <h3>Access Code: {this.state.accessCode}</h3>
-                <PlayersTable
-                displayPlayers = {this.displayPlayers()}
+                <PlayerTable
+                playerMap = {this.playerMap()}
+                players = {this.state.players}
+                />
+                <Options
+                onClick = {(option) => this.handleClick(option)}
                 />
             </div>
         )
