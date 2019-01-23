@@ -50,7 +50,7 @@ app.post("/createGame", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.post("/addPlayer", async (req, res) => {
+app.post("/addPlayer", gameNotOver, async (req, res) => {
     const username = req.body.username
     const guess = req.body.guess
     const accessCode = req.body.accessCode
@@ -63,26 +63,31 @@ app.post("/addPlayer", async (req, res) => {
 app.delete("/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.deleteGame({accessCode});
-    console.log(response)
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
+})
+
+app.put("/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
+    const accessCode = req.params.id;
+    const response = await pgFunctions.endGame({accessCode});
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
 // Restricted to host
-app.put("/deletePlayer", isAllowed({role: "player"}), async (req, res) => {
+app.put("/deletePlayer", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({playerID, accessCode})
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.put("/leaveGame", isAllowed({role: "player"}), async (req, res) => {
+app.put("/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const sessionID = req.session.id
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({sessionID, accessCode})
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.put("/updatePlayer", isAllowed({role: "host"}), async (req, res) => {
+app.put("/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const guess = req.body.guess
@@ -121,7 +126,16 @@ function isAllowed(args) {
         res.status(400).json({status: false, message: "Unauthorized"})
     }
 }
-    
+
+async function gameNotOver(req, res, next) {
+    const accessCode = req.params.id || req.body.accessCode
+    const response = await pgFunctions.gameStatus({accessCode});
+    if(response.message === false) {
+        return next()
+    }
+    res.status(400).json({status: false, message: "Game already ended by host"})
+}
+
 const port = 5000;
 app.listen(port, function() {
   console.log("Express server started.")

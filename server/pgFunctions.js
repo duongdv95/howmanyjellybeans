@@ -61,6 +61,16 @@ async function deleteGame({accessCode}) {
     return (response) ? {status: true, message: `Succesfully deleted game /${accessCode}`} : {status: false, message: "Invalid access code"}
 }
 
+async function endGame({accessCode}) {
+    const response = await knex("games").where({access_code: accessCode}).update({game_end: true});
+    return (response) ? {status: true, message: `Succesfully ended game /${accessCode}`} : {status: false, message: "Invalid access code"}
+}
+
+async function gameStatus({accessCode}) {
+    const [response] = await knex("games").where({access_code: accessCode}).select("game_end");
+    return (response) ? {status: true, message: response.game_end} : {status: false, message: "Invalid access code"}
+}
+
 async function getPlayers(args) {
     const accessCode = args.accessCode || null;
     const revealSessionID = args.revealSessionID || false;
@@ -201,5 +211,7 @@ module.exports = {
     deleteGame,
     sortPlayerRank,
     deletePlayer,
-    updatePlayer
+    updatePlayer,
+    endGame,
+    gameStatus
 }

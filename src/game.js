@@ -19,23 +19,42 @@ function LeaveButton(props) {
     )
 }
 
+function EndButton(props) {
+    return (
+        <button onClick={() => props.onClick("endButton")}>
+        End Game
+        </button>
+    )
+}
+
 class Options extends React.Component {
-    renderLeavebutton() {
+    renderLeaveButton() {
         return (
             <LeaveButton 
             onClick={(option) => this.props.onClick(option)}
             />
         );
     }
+
+    renderEndButton() {
+        return (
+            <EndButton
+            onClick={(option) => this.props.onClick(option)}
+            />
+        );
+    }
+
     render() {
         return (
-            this.renderLeavebutton()
+            <div>
+                {this.renderLeaveButton()}
+                {this.renderEndButton()}
+            </div>
         )
     }
 }
 
 class PlayerTable extends React.Component {
-
     render() {
         const playerMap = this.props.playerMap
         const players = this.props.players
@@ -119,15 +138,17 @@ class Game extends React.Component {
 
     handleClick(option) {
         if(option === "leaveButton") {
-            this.leaveGame()
+            this.leaveGame(this.state.accessCode)
+        }        
+        if(option === "endButton") {
+            this.endGame(this.state.accessCode)
         }
     }
 
-    async leaveGame(playerID, accessCode) {
+    async leaveGame(accessCode) {
         try {
-            const response = await axios.post("/addplayer", 
+            const response = await axios.put("/leaveGame", 
             {    
-                "playerID": playerID,
                 "accessCode": accessCode
             })
             return response
@@ -135,12 +156,24 @@ class Game extends React.Component {
             return error.response
         }
     }
-    
+
+    async endGame(accessCode) {
+        try {
+            const response = await axios.put(`/${accessCode}/endGame`, 
+            {    
+                "accessCode": accessCode
+            })
+            return response
+        } catch (error) {
+            return error.response
+        }
+    }
+
     componentDidMount() {
         this.loadData()
         setInterval(() => {
             this.loadData()
-        }, 2000)
+        }, 3000)
     }
 
     render() {
