@@ -63,7 +63,7 @@ async function deleteGame({accessCode}) {
 
 async function endGame({accessCode}) {
     const response = await knex("games").where({access_code: accessCode}).update({game_end: true});
-    return (response) ? {status: true, message: `Succesfully ended game /${accessCode}`} : {status: false, message: "Invalid access code"}
+    return (response) ? {status: true, message: `Succesfully ended game /${accessCode}`, gameEnded: true} : {status: false, message: "Invalid access code"}
 }
 
 async function gameStatus({accessCode}) {

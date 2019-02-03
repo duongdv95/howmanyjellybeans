@@ -25,6 +25,12 @@ app.use(session({
     cookie: {maxAge: null}
 }));
 
+app.get("/:id/status", async (req, res) => {
+    const accessCode = req.params.id
+    const response = await pgFunctions.gameStatus({accessCode});
+    response.status ? res.status(200).json(response) : res.status(400).json(response)
+})
+
 app.get("/:id/players", async (req, res) => {
     const accessCode = req.params.id
     const sessionID = req.session.id
@@ -110,7 +116,7 @@ function isAllowed(args) {
     return async function (req, res, next) {
         const sessionID = req.session.id
         const accessCode = req.params.id || req.body.accessCode
-        const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true});
+        const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
         const playersArray = response.message
         // console.log(sessionID, accessCode, response, playersArray)
         const condition = function(i) {

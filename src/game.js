@@ -66,9 +66,11 @@ class PlayerTable extends React.Component {
     render() {
         const playerMap = this.props.playerMap
         const players = this.props.players
+        const gameEnded = this.props.gameEnded
+
         const displayPlayers = () => {
-            return (players.length !== 0) ? 
-            (
+            if(players.length !== 0) {
+                return (!gameEnded) ? (
                 <table>
                     <tbody>
                         <tr>
@@ -82,9 +84,28 @@ class PlayerTable extends React.Component {
                         {playerMap}
                     </tbody>
                 </table>
-            ) 
-            : 
-            (<div>Loading...</div>)
+            ) : (
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>
+                                Player
+                            </th>
+                            <th>
+                                Guess
+                            </th>
+                            <th>
+                                Rank
+                            </th>
+                        </tr>
+                        {playerMap}
+                    </tbody>
+                </table>
+            )
+            } else {
+                return (<div>Loading...</div>)
+            }
+       
         }
         return (
             <div>
@@ -101,7 +122,17 @@ class Game extends React.Component {
             accessCode: this.props.match.params.id,
             players: [],
             status: false,
-            isHost: false
+            isHost: false,
+            gameEnded: false
+        }
+    }
+
+    async getGameStatus() {
+        try {
+            const response = await axios(`/${this.state.accessCode}/status`)
+            return response.data.message
+        } catch (error) {
+            return error.response
         }
     }
 
@@ -114,8 +145,9 @@ class Game extends React.Component {
         }
     }
 
-    async loadData() {
-        const response = await this.getPlayers()
+    async loadData(gameEnded) {
+        const response = (gameEnded) ? await this.getSortedPlayers() : await this.getPlayers()
+        // console.log(response.data.message)
         const data = response.data.message
         if(response.data.status === true){
             this.setState({players: data, status: true})
@@ -125,21 +157,33 @@ class Game extends React.Component {
         } else {
             this.setState({players: [], status: false})
             this.setState({accessCode: data})
-        }
-        
+        }  
     }
 
     playerMap() { 
         const players = this.state.players
+        const gameEnded = this.state.gameEnded
         if(this.state.status) {
             return players.map(function(element) {
-                return (
+                return (!gameEnded) ? (
                     <tr key={element.id}>
                         <td>
                             {element.username}
                         </td>
                         <td>
                             {element.guess}
+                        </td>
+                    </tr>
+                ) : (
+                    <tr key={element.id}>
+                        <td>
+                            {element.username}
+                        </td>
+                        <td>
+                            {element.guess}
+                        </td>
+                        <td>
+                            {element.rank}
                         </td>
                     </tr>
                 )
@@ -170,9 +214,10 @@ class Game extends React.Component {
         }
     }
 
-    async endGame(accessCode) {
+    async getSortedPlayers() {
+        const accessCode = this.state.accessCode
         try {
-            const response = await axios.put(`/${accessCode}/endGame`, 
+            const response = await axios.get(`/${accessCode}/sortPlayers`, 
             {    
                 "accessCode": accessCode
             })
@@ -182,11 +227,34 @@ class Game extends React.Component {
         }
     }
 
-    componentDidMount() {
-        this.loadData()
-        setInterval(() => {
-            this.loadData()
-        }, 3000)
+    async endGame(accessCode) {
+        try {
+            const response = await axios.put(`/${accessCode}/endGame`, 
+            {    
+                "accessCode": accessCode
+            })
+            if (response.data.gameEnded) {
+                this.setState({gameEnded: true})
+            } else {
+                this.setState({gameEnded: false})
+            }
+            return response
+        } catch (error) {
+            return error.response
+        }
+    }
+
+    async componentDidMount() {
+        const gameEnded = await this.getGameStatus()
+        this.setState({gameEnded})
+        this.loadData(this.state.gameEnded)
+        this.myInterval = setInterval(() => {
+            this.loadData(this.state.gameEnded)
+        }, 1000)
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.myInterval)
     }
 
     render() {
@@ -197,6 +265,7 @@ class Game extends React.Component {
                 <PlayerTable
                 playerMap = {this.playerMap()}
                 players = {this.state.players}
+                gameEnded = {this.state.gameEnded}
                 />
                 <Options
                 onClick = {(option) => this.handleClick(option)}
