@@ -27,6 +27,14 @@ function EndButton(props) {
     )
 }
 
+// function EndButton(props) {
+//     return (
+//         <button onClick={() => props.onClick("endButton")}>
+//         End Game
+//         </button>
+//     )
+// }
+
 class Options extends React.Component {
     renderLeaveButton() {
         return (
@@ -105,8 +113,8 @@ class PlayerTable extends React.Component {
             } else {
                 return (<div>Loading...</div>)
             }
-       
         }
+        
         return (
             <div>
                 {displayPlayers()}
@@ -132,7 +140,7 @@ class Game extends React.Component {
             const response = await axios(`/${this.state.accessCode}/status`)
             return response.data.message
         } catch (error) {
-            return error.response
+            return error.response.data.status
         }
     }
 
@@ -258,10 +266,12 @@ class Game extends React.Component {
     }
 
     render() {
+        const message = (this.state.gameEnded) ? (<h3>Game over!</h3>) : (<div></div>)
         return (
             <div>
                 <h1>How many jellybeans?</h1>
                 <h3>Access Code: {this.state.accessCode}</h3>
+                {message}
                 <PlayerTable
                 playerMap = {this.playerMap()}
                 players = {this.state.players}

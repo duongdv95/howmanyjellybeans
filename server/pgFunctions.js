@@ -68,6 +68,7 @@ async function endGame({accessCode}) {
 
 async function gameStatus({accessCode}) {
     const [response] = await knex("games").where({access_code: accessCode}).select("game_end");
+    // console.log(response)
     return (response) ? {status: true, message: response.game_end} : {status: false, message: "Invalid access code"}
 }
 
