@@ -13,7 +13,9 @@ import axios from "axios"
 
 function LeaveButton(props) {
     return (
-        <button onClick={() => props.onClick("leaveButton")}>
+        <button 
+        name="leaveButton"
+        onClick={(e) => props.onClick(e)}>
         Leave Game
         </button>
     )
@@ -21,19 +23,26 @@ function LeaveButton(props) {
 
 function EndButton(props) {
     return (
-        <button onClick={() => props.onClick("endButton")}>
+        <button 
+        name="endButton"
+        onClick={(e) => props.onClick(e)}>
         End Game
         </button>
     )
 }
 
-// function EndButton(props) {
-//     return (
-//         <button onClick={() => props.onClick("endButton")}>
-//         End Game
-//         </button>
-//     )
-// }
+function DeletePlayerButton(onClick, playerID, isHost) {
+    return (isHost) ? (
+        <button 
+        name="deletePlayerButton"
+        data-id={playerID} 
+        onClick={(e) => {
+            onClick(e)
+        }}>
+        X
+        </button>
+    ) : (null)
+}
 
 class Options extends React.Component {
     renderLeaveButton() {
@@ -126,6 +135,7 @@ class PlayerTable extends React.Component {
 class Game extends React.Component {
     constructor(props) {
         super(props)
+        this._isMounted = false;
         this.state = {
             accessCode: this.props.match.params.id,
             players: [],
@@ -138,6 +148,7 @@ class Game extends React.Component {
     async getGameStatus() {
         try {
             const response = await axios(`/${this.state.accessCode}/status`)
+            this._isMounted && this.setState({gameEnded: response.data.message})
             return response.data.message
         } catch (error) {
             return error.response.data.status
@@ -158,25 +169,29 @@ class Game extends React.Component {
         // console.log(response.data.message)
         const data = response.data.message
         if(response.data.status === true){
-            this.setState({players: data, status: true})
+            this._isMounted && this.setState({players: data, status: true})
             if(response.data.isHost === true) {
-                this.setState({isHost: true})
+                this._isMounted && this.setState({isHost: true})
             }
         } else {
-            this.setState({players: [], status: false})
-            this.setState({accessCode: data})
+            this._isMounted && this.setState({players: [], status: false})
+            this._isMounted && this.setState({accessCode: data})
         }  
     }
 
     playerMap() { 
         const players = this.state.players
         const gameEnded = this.state.gameEnded
+        const onClick = (option) => this.handleClick(option)
+        const isHost = this.state.isHost
+
         if(this.state.status) {
             return players.map(function(element) {
                 return (!gameEnded) ? (
                     <tr key={element.id}>
                         <td>
                             {element.username}
+                            {DeletePlayerButton(onClick, element.id, isHost)}
                         </td>
                         <td>
                             {element.guess}
@@ -197,16 +212,36 @@ class Game extends React.Component {
                 )
             })
         } else {
-            return (<tr><td></td></tr>)
+            return (null)
+            //<tr><td></td></tr>
         }
     }
 
-    handleClick(option) {
+    handleClick(e) {
+        const buttonElement = e.target
+        const option = buttonElement.name
         if(option === "leaveButton") {
             this.leaveGame(this.state.accessCode)
         }        
         if(option === "endButton") {
             this.endGame(this.state.accessCode)
+        }
+        if(option === "deletePlayerButton") {
+            const playerID = buttonElement.dataset.id
+            this.deletePlayer(this.state.accessCode, playerID)
+        }
+    }
+
+    async deletePlayer(accessCode, playerID) {
+        try {
+            const response = await axios.put("/deletePlayer", 
+            {    
+                "accessCode": accessCode,
+                "playerID": playerID
+            })
+            return response
+        } catch (error) {
+            return error.response
         }
     }
 
@@ -253,15 +288,16 @@ class Game extends React.Component {
     }
 
     async componentDidMount() {
-        const gameEnded = await this.getGameStatus()
-        this.setState({gameEnded})
+        this._isMounted = true
+        this._isMounted && this.getGameStatus()
         this.loadData(this.state.gameEnded)
         this.myInterval = setInterval(() => {
             this.loadData(this.state.gameEnded)
-        }, 1000)
+        }, 2000)
     }
 
     componentWillUnmount() {
+        this._isMounted = false
         clearInterval(this.myInterval)
     }
 
