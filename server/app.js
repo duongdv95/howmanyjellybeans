@@ -110,6 +110,27 @@ var generatePlayerObj = function playerData({username, guess, host, sessionID}) 
     }
 }
 
+async function deleteGames() {
+    const response = await pgFunctions.getGames()
+    if(response.status) {
+        const gamesArray = response.message
+        for(let i = 0; i < gamesArray.length; i++) {
+            var date = new Date(gamesArray[i].created_at)
+            var currentDate = new Date()
+            currentDate.setMilliseconds(0)
+            var timeElapsed = (currentDate - date)/1000
+            //24*60*60, 24 hours converted to seconds
+            var accessCode = gamesArray[i].access_code
+            if (timeElapsed > 24*60*60) {
+                var responses = await pgFunctions.deleteGame({accessCode})
+                console.log(responses)
+            }
+        }
+    }
+}
+
+setInterval(deleteGames, 60*60*1000)
+
 function isAllowed(args) {
     const role = args.role //"host" or "player"
     var isHost = (role === "host") ? true : false

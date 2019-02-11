@@ -55,6 +55,10 @@ async function createGame({playerData, winningNumber}) {
         return response ? {status: true, message: access_code} : {status: false, message: "Error! could not create game."}
     }
 }
+async function getGames() {
+    const response = await knex("games").select("access_code", "created_at")
+    return (response) ? {status: true, message: response} : {status: false, message: "Failed to get games"}
+}
 
 async function deleteGame({accessCode}) {
     const response = await knex("games").where({access_code: accessCode}).del();
@@ -220,5 +224,6 @@ module.exports = {
     deletePlayer,
     updatePlayer,
     endGame,
-    gameStatus
+    gameStatus,
+    getGames
 }
