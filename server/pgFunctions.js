@@ -87,7 +87,7 @@ async function getPlayers(args) {
     let index, isHost
     if(sessionID) {
         index = getPlayerIndex({playersArray: response.players, sessionID})
-        isHost = (response.players.length > 0) ? response.players[index].host : null 
+        isHost = (index && response.players.length > 0) ? response.players[index].host : null 
     }
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         var removeSessionID = {

@@ -88,6 +88,8 @@ app.put("/deletePlayer", isAllowed({role: "player"}), gameNotOver, async (req, r
 app.put("/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const sessionID = req.session.id
     const accessCode = req.body.accessCode
+    req.session.destroy(function(){
+      });
     const response = await pgFunctions.deletePlayer({sessionID, accessCode})
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
