@@ -3,6 +3,8 @@ import axios from "axios"
 
 // Components Hierarchy
 // -Game
+//    -Title
+//    -Access Code
 //    -PLAYER TABLE [host inputs]
 //        -DELETE PLAYER
 //        -UPDATE PLAYER GUESS
@@ -141,7 +143,8 @@ class Game extends React.Component {
             players: [],
             status: false,
             isHost: false,
-            gameEnded: false
+            gameEnded: false,
+            hostsArray: []
         }
     }
 
@@ -166,7 +169,6 @@ class Game extends React.Component {
 
     async loadData(gameEnded) {
         const response = (gameEnded) ? await this.getSortedPlayers() : await this.getPlayers()
-        // console.log(response.data.message)
         const data = response.data.message
         if(response.data.status === true){
             this._isMounted && this.setState({players: data, status: true})
@@ -184,9 +186,11 @@ class Game extends React.Component {
         const gameEnded = this.state.gameEnded
         const onClick = (option) => this.handleClick(option)
         const isHost = this.state.isHost
-
+        const playersWithoutHost = players.filter(function(element) {
+            return element.host === false
+        })
         if(this.state.status) {
-            return players.map(function(element) {
+            return playersWithoutHost.map(function(element) {
                 return (!gameEnded) ? (
                     <tr key={element.id}>
                         <td>
@@ -303,10 +307,19 @@ class Game extends React.Component {
 
     render() {
         const message = (this.state.gameEnded) ? (<h3>Game over!</h3>) : (<div></div>)
+        const hostsArray = this.state.players.filter(function(element) {
+            return element.host === true
+        })
+        const hostsElement = hostsArray.map(function(element) {
+            return (
+                element.username
+            )
+        })
         return (
             <div>
                 <h1>How many jellybeans?</h1>
                 <h3>Access Code: {this.state.accessCode}</h3>
+                <h3>Host: {hostsElement} </h3>
                 {message}
                 <PlayerTable
                 playerMap = {this.playerMap()}
