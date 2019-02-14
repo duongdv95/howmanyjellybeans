@@ -85,9 +85,10 @@ async function getPlayers(args) {
         return {status: false, message: "Invalid access code"}
     }
     let index, isHost
+    // console.log(sessionID)
     if(sessionID) {
         index = getPlayerIndex({playersArray: response.players, sessionID})
-        isHost = (!isNaN(index) && response.players.length > 0) ? response.players[index].host : null 
+        isHost = ((typeof index == "number") && response.players.length > 0) ? response.players[index].host : null 
         // console.log(isHost)
     }
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
@@ -196,16 +197,18 @@ async function updatePlayer(args) {
 }
 
 async function deletePlayer(args) {
-    // allow host to remove player or allow player to remove themself ??
     const accessCode = args.accessCode
     const playerID = args.playerID
     const sessionID = args.sessionID
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
-    var index = (playerID) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID})
+    var index = (args.length === 3) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID})
     if(index == null){
         return {status: false, message: "Player not found."}
+    }
+    if(playerID && playersArray[index].sessionID === sessionID) {
+        return {status: false, message: "Cannot delete yourself if you are the host."}
     }
     playersArray.splice(index, 1)
     const deletePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})

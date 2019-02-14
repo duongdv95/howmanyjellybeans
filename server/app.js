@@ -11,8 +11,6 @@ const knex             = require("knex")(knexfile);
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
-        console.log("Inside the session middleware")
-        console.log(req.sessionID)
         return uuid()
     },
     store: new KnexSessionStore({
@@ -78,10 +76,11 @@ app.put("/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
 })
 
 // Restricted to host
-app.put("/deletePlayer", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
+app.put("/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
+    const sessionID = req.session.id
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
-    const response = await pgFunctions.deletePlayer({playerID, accessCode})
+    const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
