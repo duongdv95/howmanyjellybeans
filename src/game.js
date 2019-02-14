@@ -9,9 +9,35 @@ import axios from "axios"
 //        -DELETE PLAYER
 //        -UPDATE PLAYER GUESS
 //    -OPTIONS
+//        -JOIN GAME
 //        -LEAVE GAME
 //        -END GAME
 //    -Footer
+
+function JoinGameForm(props) {
+    return (
+        <form
+        name="joinGameClicked"
+        onSubmit ={props.handleSubmit}
+        >   
+            <input 
+            name="playerName"
+            type="text" 
+            placeholder="Enter your name"
+            value={props.hostname}
+            onChange ={props.handleChange}
+            />
+            <input 
+            name="playerGuess"
+            type="text" 
+            placeholder="Enter your guess"
+            value={props.playerGuess}
+            onChange ={props.handleChange}
+            />
+            <input type="submit" value="Join game"/>
+        </form>
+    )
+}
 
 function LeaveButton(props) {
     return (
@@ -47,6 +73,15 @@ function DeletePlayerButton(onClick, playerID, isHost) {
 }
 
 class Options extends React.Component {
+    renderJoinGameForm() {
+        return (
+            <JoinGameForm 
+            key="joinGameForm"
+            handleSubmit={this.props.handleSubmit}
+            handleChange={this.props.handleChange}
+            />
+        )
+    }
     renderLeaveButton() {
         return (
             <LeaveButton 
@@ -67,15 +102,33 @@ class Options extends React.Component {
 
     render() {
         const isHost = this.props.isHost
-        const displayOptions = () => {
-            return (isHost) ? 
-            ([this.renderLeaveButton(), this.renderEndButton()]) 
-            : 
-            ([this.renderLeaveButton()])
+        const inDB = this.props.inDB
+        const displayArray = []
+        if(inDB && isHost) {
+            displayArray.push("leaveButton")
+            displayArray.push("endButton")
         }
+        if(inDB && !isHost) {
+            displayArray.push("leaveButton")
+        }
+        if(!inDB) {
+            displayArray.push("joinGameForm")
+        }
+        const options = {
+            "endButton": this.renderEndButton(),
+            "leaveButton": this.renderLeaveButton(),
+            "joinGameForm": this.renderJoinGameForm()
+        }
+        const display = displayArray.map(function(element) {
+            let option
+            if(options.hasOwnProperty(element)) {
+                option = options[element]
+            }
+            return (option)
+        })
         return (
             <div>
-                {displayOptions()}
+                {display}
             </div>
         )
     }
@@ -86,8 +139,12 @@ class PlayerTable extends React.Component {
         const playerMap = this.props.playerMap
         const players = this.props.players
         const gameEnded = this.props.gameEnded
+        const inDB = this.props.inDB
 
         const displayPlayers = () => {
+            if(!inDB) {
+                return null
+            }
             if(players.length !== 0) {
                 return (!gameEnded) ? (
                 <table>
@@ -138,13 +195,17 @@ class Game extends React.Component {
     constructor(props) {
         super(props)
         this._isMounted = false;
+        this.handleChange = this.handleChange.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
         this.state = {
             accessCode: this.props.match.params.id,
             players: [],
             status: false,
             isHost: false,
             gameEnded: false,
-            hostsArray: []
+            inDB: false,
+            playerName: "",
+            playerGuess: null,
         }
     }
 
@@ -171,7 +232,7 @@ class Game extends React.Component {
         const response = (gameEnded) ? await this.getSortedPlayers() : await this.getPlayers()
         const data = response.data.message
         if(response.data.status === true){
-            this._isMounted && this.setState({players: data, status: true})
+            this._isMounted && this.setState({players: data, status: true, inDB: response.data.inDB})
             if(response.data.isHost === true) {
                 this._isMounted && this.setState({isHost: true})
             }
@@ -233,6 +294,57 @@ class Game extends React.Component {
         if(option === "deletePlayerButton") {
             const playerID = buttonElement.dataset.id
             this.deletePlayer(this.state.accessCode, playerID)
+        }
+    }
+
+    async handleSubmit(event) {
+        event.preventDefault()
+        const eventType = event.target.name
+        const accessCode = this.state.accessCode
+        const playerName = this.state.playerName
+        const playerGuess = this.state.playerGuess
+        switch(eventType) {
+            case "joinGameClicked":
+                if(
+                    accessCode &&
+                    isNumerical(playerGuess) &&
+                    playerName && playerName.length > 0
+                ) {
+                    const response = await this.joinGame(accessCode, playerName, playerGuess)
+                    return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({response: response.data})
+                }
+                break
+            default: console.log("error")
+        }
+    }
+
+    async joinGame(accessCode, playerName, playerGuess) {
+        try {
+            const response = await axios.post("/addplayer", 
+            {    
+                "username": playerName,
+                "guess": playerGuess,
+                "accessCode": accessCode
+            })
+            return response
+        } catch (error) {
+            return error.response
+        }
+    }
+
+    handleChange(event) {
+        const eventType = event.target.name
+        switch(eventType) {
+            case "playerName":
+            this.setState({playerName: event.target.value})
+            break
+
+            case "playerGuess":
+            this.setState({playerGuess: event.target.value})
+            break
+
+            default: 
+                console.log("error")
         }
     }
 
@@ -325,10 +437,14 @@ class Game extends React.Component {
                 playerMap = {this.playerMap()}
                 players = {this.state.players}
                 gameEnded = {this.state.gameEnded}
+                inDB = {this.state.inDB}
                 />
                 <Options
                 onClick = {(option) => this.handleClick(option)}
                 isHost = {this.state.isHost}
+                inDB = {this.state.inDB}
+                handleChange = {this.handleChange}
+                handleSubmit = {this.handleSubmit}
                 />
             </div>
         )
@@ -336,3 +452,7 @@ class Game extends React.Component {
 }
 
 export default Game
+
+function isNumerical(guess) {
+    return (isNaN(guess)) ? false : true
+}

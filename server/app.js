@@ -123,6 +123,7 @@ async function deleteGames() {
             //24*60*60, 24 hours converted to seconds
             var accessCode = gamesArray[i].access_code
             if (timeElapsed > 24*60*60) {
+                //delete all games every 24 hour 
                 var responses = await pgFunctions.deleteGame({accessCode})
                 console.log(responses)
             }
@@ -130,7 +131,7 @@ async function deleteGames() {
     }
 }
 
-setInterval(deleteGames, 60*60*1000)
+setInterval(deleteGames, 1*60*60*1000) //check DB every hour for any games to delete
 
 function isAllowed(args) {
     const role = args.role //"host" or "player"

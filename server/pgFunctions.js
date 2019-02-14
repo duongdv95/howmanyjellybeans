@@ -89,17 +89,17 @@ async function getPlayers(args) {
     if(sessionID) {
         index = getPlayerIndex({playersArray: response.players, sessionID})
         isHost = ((typeof index == "number") && response.players.length > 0) ? response.players[index].host : null 
-        // console.log(isHost)
     }
+    let inDB = (typeof index === "number") ? true : false
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         var removeSessionID = {
             "username": obj.username, 
             "guess":obj.guess, 
             "host": obj.host,
             "id": obj.id}
-            return removeSessionID
+        return removeSessionID
         })
-    return response ? {status: true, message: playersArray, isHost} : {status: false, message: "Invalid access code"}
+    return response ? {status: true, message: playersArray, isHost, inDB} : {status: false, message: "Invalid access code"}
 }
 
 async function addPlayer({playerData, accessCode}) {

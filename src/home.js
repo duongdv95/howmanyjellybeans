@@ -303,7 +303,6 @@ class Home extends React.Component {
             default: 
                 console.log("error")
         }
-        
     }
 
     
