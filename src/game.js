@@ -4,7 +4,9 @@ import axios from "axios"
 // Components Hierarchy
 // -Game
 //    -Title
-//    -Access Code
+//    -Game info
+//        -Access Code
+//        -Host
 //    -Loading icon
 //    -PLAYER TABLE [host inputs]
 //        -DELETE PLAYER
@@ -14,12 +16,33 @@ import axios from "axios"
 //        -LEAVE GAME
 //        -END GAME
 //    -Footer
+
+function GameInfo(props) {
+    const hostsArray = props.hostsArray
+    const hostUsernamesArray = hostsArray.map(function(element) {
+        return (
+            element.username
+        )
+    })
+    const displayLoading = (props.status) ? (
+        <div>
+            <h3>Access Code: {props.accessCode}</h3>
+            <h3>Host: {hostUsernamesArray} </h3>
+            {props.message}
+        </div>
+    ) : null 
+    return (
+        displayLoading
+    )
+}
+
 function LoadingIcon(props) {
     const displayLoading = (props.status) ? null : (<div>Loading...</div>)
     return (
         displayLoading
     )
 }
+
 function JoinGameForm(props) {
     return (
         <form
@@ -148,6 +171,7 @@ class PlayerTable extends React.Component {
         const status = this.props.status
 
         const displayPlayers = () => {
+            console.log(status)
             if(!inDB || !status) {
                 return null
             }
@@ -234,8 +258,8 @@ class Game extends React.Component {
 
     async loadData(gameEnded) {
         const response = (gameEnded) ? await this.getSortedPlayers() : await this.getPlayers()
-        if(this.state.accessCode === "Unauthorized") {
-            this.props.history.push(`/unauthorized`)
+        if(response.data.message === "Unauthorized") {
+            return this.props.history.push({pathname: "/unauthorized", state: {accessCode: this.state.accessCode}})
         } 
         const data = response.data.message
         if(response.data.status === true){
@@ -435,17 +459,15 @@ class Game extends React.Component {
         const hostsArray = this.state.players.filter(function(element) {
             return element.host === true
         })
-        const hostsElement = hostsArray.map(function(element) {
-            return (
-                element.username
-            )
-        })
         return (
             <div>
                 <h1>How many jellybeans?</h1>
-                <h3>Access Code: {this.state.accessCode}</h3>
-                <h3>Host: {hostsElement} </h3>
-                {message}
+                <GameInfo 
+                accessCode = {this.state.accessCode}
+                hostsArray = {hostsArray}
+                message = {message}
+                status = {this.state.status}
+                />
                 <LoadingIcon
                 status = {this.state.status}
                 />

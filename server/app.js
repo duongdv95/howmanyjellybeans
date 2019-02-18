@@ -140,6 +140,10 @@ function isAllowed(args) {
     return async function (req, res, next) {
         const sessionID = req.session.id
         const accessCode = req.params.id || req.body.accessCode
+        const gameStatus = await pgFunctions.gameStatus({accessCode});
+        if(gameStatus.message === true) {
+            return next()
+        }
         const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
         const playersArray = response.message
         // console.log(sessionID, accessCode, response, playersArray)
