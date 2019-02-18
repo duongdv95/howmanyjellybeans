@@ -26,6 +26,7 @@ async function sortPlayerRank({accessCode}) {
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
     })
+    const gameStatusResponse = await gameStatus({accessCode});
     const rankedPlayersArray = playersArray.map(function(obj, index) {
         var removeSessionID = {
             "username": obj.username, 
@@ -36,7 +37,7 @@ async function sortPlayerRank({accessCode}) {
             "rank": index + 1}
             return removeSessionID
     })
-    return {status: true, message: rankedPlayersArray.concat(hostsArray), inDB: true}
+    return {status: true, message: rankedPlayersArray.concat(hostsArray), inDB: true, gameEnded: gameStatusResponse.message}
 }
 
 async function createGame({playerData, winningNumber}) {
@@ -91,6 +92,7 @@ async function getPlayers(args) {
         isHost = ((typeof index == "number") && response.players.length > 0) ? response.players[index].host : null 
     }
     const inDB = (typeof index === "number") ? true : false
+    const gameStatusResponse = await gameStatus({accessCode});
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         const currentPlayer = (obj.sessionID === sessionID) ? true : false
         const removeSessionID = {
@@ -101,7 +103,7 @@ async function getPlayers(args) {
             "currentPlayer": currentPlayer}
         return removeSessionID
         })
-    return response ? {status: true, message: playersArray, isHost, inDB} : {status: false, message: "Invalid access code"}
+    return response ? {status: true, message: playersArray, isHost, inDB, gameEnded: gameStatusResponse.message} : {status: false, message: "Invalid access code"}
 }
 
 async function addPlayer({playerData, accessCode}) {

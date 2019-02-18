@@ -134,6 +134,7 @@ class Options extends React.Component {
         const inDB = this.props.inDB
         const displayArray = []
         const status = this.props.status
+        const gameEnded = this.props.gameEnded
         if(inDB && isHost) {
             displayArray.push("leaveButton")
             displayArray.push("endButton")
@@ -149,7 +150,7 @@ class Options extends React.Component {
             "leaveButton": this.renderLeaveButton(),
             "joinGameForm": this.renderJoinGameForm()
         }
-        const display = (status) ? displayArray.map(function(element) {
+        const display = (status && !gameEnded) ? displayArray.map(function(element) {
             let option
             if(options.hasOwnProperty(element)) {
                 option = options[element]
@@ -171,7 +172,6 @@ class PlayerTable extends React.Component {
         const status = this.props.status
 
         const displayPlayers = () => {
-            console.log(status)
             if(!inDB || !status) {
                 return null
             }
@@ -265,7 +265,8 @@ class Game extends React.Component {
         if(response.data.status === true){
             this._isMounted && this.setState({players: data, status: true, 
                                               inDB: response.data.inDB,
-                                              matchesSession: response.data.matchesSession
+                                              matchesSession: response.data.matchesSession,
+                                              gameEnded: response.data.gameEnded
                                               })
             if(response.data.isHost === true) {
                 this._isMounted && this.setState({isHost: true})
@@ -485,6 +486,7 @@ class Game extends React.Component {
                 handleChange = {this.handleChange}
                 handleSubmit = {this.handleSubmit}
                 status = {this.state.status}
+                gameEnded = {this.state.gameEnded}
                 />
             </div>
         )
