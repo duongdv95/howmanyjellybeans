@@ -87,9 +87,11 @@ app.put("/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res
 app.put("/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const sessionID = req.session.id
     const accessCode = req.body.accessCode
-    req.session.destroy(function(){
-      });
     const response = await pgFunctions.deletePlayer({sessionID, accessCode})
+    if(response) {
+        req.session.destroy(function(){
+          });
+    }
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
@@ -125,7 +127,6 @@ async function deleteGames() {
             if (timeElapsed > 24*60*60) {
                 //delete all games every 24 hour 
                 var responses = await pgFunctions.deleteGame({accessCode})
-                console.log(responses)
             }
         }
     }
@@ -135,7 +136,7 @@ setInterval(deleteGames, 1*60*60*1000) //check DB every hour for any games to de
 
 function isAllowed(args) {
     const role = args.role //"host" or "player"
-    var isHost = (role === "host") ? true : false
+    const isHost = (role === "host") ? true : false
     return async function (req, res, next) {
         const sessionID = req.session.id
         const accessCode = req.params.id || req.body.accessCode

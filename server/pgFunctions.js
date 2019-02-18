@@ -20,6 +20,7 @@ async function sortPlayerRank({accessCode}) {
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
     var playersArrayWithHost = playersResponse.message;
+    var hostsArray = playersArrayWithHost.filter(element => element.host == true)
     var playersArray = playersArrayWithHost.filter(element => element.host == false)
     var winningNumber = winningNumberResponse.winning_number
     playersArray.sort(function(a, b) {
@@ -35,7 +36,7 @@ async function sortPlayerRank({accessCode}) {
             "rank": index + 1}
             return removeSessionID
     })
-    return {status: true, message: rankedPlayersArray}
+    return {status: true, message: rankedPlayersArray.concat(hostsArray), inDB: true}
 }
 
 async function createGame({playerData, winningNumber}) {
@@ -85,18 +86,19 @@ async function getPlayers(args) {
         return {status: false, message: "Invalid access code"}
     }
     let index, isHost
-    // console.log(sessionID)
     if(sessionID) {
         index = getPlayerIndex({playersArray: response.players, sessionID})
         isHost = ((typeof index == "number") && response.players.length > 0) ? response.players[index].host : null 
     }
-    let inDB = (typeof index === "number") ? true : false
+    const inDB = (typeof index === "number") ? true : false
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
-        var removeSessionID = {
+        const currentPlayer = (obj.sessionID === sessionID) ? true : false
+        const removeSessionID = {
             "username": obj.username, 
             "guess":obj.guess, 
             "host": obj.host,
-            "id": obj.id}
+            "id": obj.id,
+            "currentPlayer": currentPlayer}
         return removeSessionID
         })
     return response ? {status: true, message: playersArray, isHost, inDB} : {status: false, message: "Invalid access code"}
@@ -200,11 +202,11 @@ async function deletePlayer(args) {
     const accessCode = args.accessCode
     const playerID = args.playerID
     const sessionID = args.sessionID
-    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true, sessionID})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
-    var index = (args.length === 3) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID})
-    if(index == null){
+    var index = (playerID) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID}) // true -> host deletes player
+    if(index == null){                                                                                                     // false -> player leaves game
         return {status: false, message: "Player not found."}
     }
     if(playerID && playersArray[index].sessionID === sessionID) {

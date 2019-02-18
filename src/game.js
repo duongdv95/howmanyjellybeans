@@ -5,6 +5,7 @@ import axios from "axios"
 // -Game
 //    -Title
 //    -Access Code
+//    -Loading icon
 //    -PLAYER TABLE [host inputs]
 //        -DELETE PLAYER
 //        -UPDATE PLAYER GUESS
@@ -13,7 +14,12 @@ import axios from "axios"
 //        -LEAVE GAME
 //        -END GAME
 //    -Footer
-
+function LoadingIcon(props) {
+    const displayLoading = (props.status) ? null : (<div>Loading...</div>)
+    return (
+        displayLoading
+    )
+}
 function JoinGameForm(props) {
     return (
         <form
@@ -104,6 +110,7 @@ class Options extends React.Component {
         const isHost = this.props.isHost
         const inDB = this.props.inDB
         const displayArray = []
+        const status = this.props.status
         if(inDB && isHost) {
             displayArray.push("leaveButton")
             displayArray.push("endButton")
@@ -119,17 +126,15 @@ class Options extends React.Component {
             "leaveButton": this.renderLeaveButton(),
             "joinGameForm": this.renderJoinGameForm()
         }
-        const display = displayArray.map(function(element) {
+        const display = (status) ? displayArray.map(function(element) {
             let option
             if(options.hasOwnProperty(element)) {
                 option = options[element]
             }
             return (option)
-        })
+        }) : null
         return (
-            <div>
-                {display}
-            </div>
+            display
         )
     }
 }
@@ -140,9 +145,10 @@ class PlayerTable extends React.Component {
         const players = this.props.players
         const gameEnded = this.props.gameEnded
         const inDB = this.props.inDB
+        const status = this.props.status
 
         const displayPlayers = () => {
-            if(!inDB) {
+            if(!inDB || !status) {
                 return null
             }
             if(players.length !== 0) {
@@ -178,8 +184,6 @@ class PlayerTable extends React.Component {
                     </tbody>
                 </table>
             )
-            } else {
-                return (<div>Loading...</div>)
             }
         }
         
@@ -205,7 +209,7 @@ class Game extends React.Component {
             gameEnded: false,
             inDB: false,
             playerName: "",
-            playerGuess: null,
+            playerGuess: null
         }
     }
 
@@ -230,9 +234,15 @@ class Game extends React.Component {
 
     async loadData(gameEnded) {
         const response = (gameEnded) ? await this.getSortedPlayers() : await this.getPlayers()
+        if(this.state.accessCode === "Unauthorized") {
+            this.props.history.push(`/unauthorized`)
+        } 
         const data = response.data.message
         if(response.data.status === true){
-            this._isMounted && this.setState({players: data, status: true, inDB: response.data.inDB})
+            this._isMounted && this.setState({players: data, status: true, 
+                                              inDB: response.data.inDB,
+                                              matchesSession: response.data.matchesSession
+                                              })
             if(response.data.isHost === true) {
                 this._isMounted && this.setState({isHost: true})
             }
@@ -250,12 +260,15 @@ class Game extends React.Component {
         const playersWithoutHost = players.filter(function(element) {
             return element.host === false
         })
+        const playerIndicator = (element) => {
+            return (element.currentPlayer === true) ? " (you)" : ""
+        }
         if(this.state.status) {
             return playersWithoutHost.map(function(element) {
                 return (!gameEnded) ? (
                     <tr key={element.id}>
                         <td>
-                            {element.username}
+                            {element.username + playerIndicator(element)}
                             {DeletePlayerButton(onClick, element.id, isHost)}
                         </td>
                         <td>
@@ -433,11 +446,15 @@ class Game extends React.Component {
                 <h3>Access Code: {this.state.accessCode}</h3>
                 <h3>Host: {hostsElement} </h3>
                 {message}
+                <LoadingIcon
+                status = {this.state.status}
+                />
                 <PlayerTable
                 playerMap = {this.playerMap()}
                 players = {this.state.players}
                 gameEnded = {this.state.gameEnded}
                 inDB = {this.state.inDB}
+                status = {this.state.status}
                 />
                 <Options
                 onClick = {(option) => this.handleClick(option)}
@@ -445,6 +462,7 @@ class Game extends React.Component {
                 inDB = {this.state.inDB}
                 handleChange = {this.handleChange}
                 handleSubmit = {this.handleSubmit}
+                status = {this.state.status}
                 />
             </div>
         )
