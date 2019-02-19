@@ -79,41 +79,39 @@ function GameForm(props) {
 
 function JoinGameForm(props) {
     return (
-        <div>
-            <form
-            name="joinGameClicked"
-            onSubmit ={props.handleSubmit}
-            >
-                <input 
-                className="input"
-                name="accessCode"
-                type="text" 
-                placeholder="Enter an access code"
-                value={props.accessCode}
-                onChange ={props.handleChange}
-                />     
-                <input 
-                className="input"
-                name="playerName"
-                type="text" 
-                placeholder="Enter your name"
-                value={props.hostname}
-                onChange ={props.handleChange}
-                />
-                <input 
-                className="input"
-                name="playerGuess"
-                type="text" 
-                placeholder="Enter your guess"
-                value={props.playerGuess}
-                onChange ={props.handleChange}
-                />
-                <input type="submit" value="Join game"/>
-                <button type="button" onClick={() => props.onClick("backButton")}>
-                    Back
-                </button>
-            </form>
-        </div>
+        <form
+        name="joinGameClicked"
+        onSubmit ={props.handleSubmit}
+        >
+            <input 
+            className="input"
+            name="accessCode"
+            type="text" 
+            placeholder="Enter an access code"
+            value={props.accessCode}
+            onChange ={props.handleChange}
+            />     
+            <input 
+            className="input"
+            name="playerName"
+            type="text" 
+            placeholder="Enter your name"
+            value={props.hostname}
+            onChange ={props.handleChange}
+            />
+            <input 
+            className="input"
+            name="playerGuess"
+            type="text" 
+            placeholder="Enter your guess"
+            value={props.playerGuess}
+            onChange ={props.handleChange}
+            />
+            <input type="submit" value="Join game"/>
+            <button type="button" onClick={() => props.onClick("backButton")}>
+                Back
+            </button>
+        </form>
     )
 }
 
