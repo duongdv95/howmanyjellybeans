@@ -13,33 +13,37 @@ import axios from "axios"
 //        -JOIN FORM    
 //    -Footer
 
-function Image() {
+function Header() {
     return (
-        <img src={"https://images.unsplash.com/photo-1519687079572-8a59631f3685?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1650&q=80"} width="400" alt="MERP"/>
+        <div id="home-header" className ="grid">
+        <h1>
+            How many jellybeans?
+        </h1>
+        <div className="bg-image"></div>
+        </div>
     )
 }
 
 function Footer() {
     return (
-        <div className="footer">
-        <button><Link to={"/instructions"}>Instructions</Link></button>
+        <div id="home-footer" className="footer grid">
+            <div>
+                <Link to={"/instructions"}>How to play</Link>
+            </div>
+            <div>
+                <Link to={"/about"}>About</Link>    
+            </div>
         </div>
-    )
-}
-
-function BackButton(props) {
-    return (
-        <button onClick={() => props.onClick("backButton")}>
-        Back
-        </button>
     )
 }
 
 function CreateGameButton(props) {
     return (
-        <button onClick={() => props.onClick("createGame")}>
-        Create Game
-        </button>
+        <div>
+            <button onClick={() => props.onClick("createGame")}>
+                Create Game
+            </button>
+        </div>
     )
 }
 
@@ -50,6 +54,7 @@ function GameForm(props) {
         onSubmit ={props.handleSubmit}
         >
             <input 
+            className="input"
             name="hostName"
             type="text" 
             placeholder="Enter your name"
@@ -57,67 +62,72 @@ function GameForm(props) {
             onChange ={props.handleChange}
             />
             <input
-             name="winningNumber"
-             type="text" 
-             placeholder="Enter the winning guess"
-             value={props.winningNumber}
-             onChange ={props.handleChange}
-             />
+            className="input"
+            name="winningNumber"
+            type="text" 
+            placeholder="Enter the winning guess"
+            value={props.winningNumber}
+            onChange ={props.handleChange}
+            />
             <input type="submit" value="Create Game"/>
+            <button type="button" onClick={() => props.onClick("backButton")}>
+                Back
+            </button>
         </form>
     )
 }
 
 function JoinGameForm(props) {
     return (
-        <form
-        name="joinGameClicked"
-        onSubmit ={props.handleSubmit}
-        >
-            <input 
-            name="accessCode"
-            type="text" 
-            placeholder="Enter an access code"
-            value={props.accessCode}
-            onChange ={props.handleChange}
-            />     
-            <input 
-            name="playerName"
-            type="text" 
-            placeholder="Enter your name"
-            value={props.hostname}
-            onChange ={props.handleChange}
-            />
-            <input 
-            name="playerGuess"
-            type="text" 
-            placeholder="Enter your guess"
-            value={props.playerGuess}
-            onChange ={props.handleChange}
-            />
-            <input type="submit" value="Join game"/>
-        </form>
+        <div>
+            <form
+            name="joinGameClicked"
+            onSubmit ={props.handleSubmit}
+            >
+                <input 
+                className="input"
+                name="accessCode"
+                type="text" 
+                placeholder="Enter an access code"
+                value={props.accessCode}
+                onChange ={props.handleChange}
+                />     
+                <input 
+                className="input"
+                name="playerName"
+                type="text" 
+                placeholder="Enter your name"
+                value={props.hostname}
+                onChange ={props.handleChange}
+                />
+                <input 
+                className="input"
+                name="playerGuess"
+                type="text" 
+                placeholder="Enter your guess"
+                value={props.playerGuess}
+                onChange ={props.handleChange}
+                />
+                <input type="submit" value="Join game"/>
+                <button type="button" onClick={() => props.onClick("backButton")}>
+                    Back
+                </button>
+            </form>
+        </div>
     )
 }
 
 function JoinGameButton(props) {
     return (
-        <button onClick={() => props.onClick("joinGame")}>
-        Join Game
-        </button>
+        <div>
+            <button onClick={() => props.onClick("joinGame")}>
+            Join Game
+            </button>
+        </div>
     )
 }
 
 class Options extends React.Component {
-    renderBackButton() {
-        return (
-            <BackButton
-            key = {"backButton"} 
-            onClick={(option) => this.props.onClick(option)}
-            />
-        );
-    }
-
     renderGameButton() {
         return (
             <CreateGameButton
@@ -133,6 +143,7 @@ class Options extends React.Component {
             key = {"gameForm"}
             handleSubmit={this.props.handleSubmit}
             handleChange={this.props.handleChange}
+            onClick={(option) => this.props.onClick(option)}
             />
         );
     }
@@ -152,6 +163,7 @@ class Options extends React.Component {
             key = {"joinGameForm"}
             handleSubmit={this.props.handleSubmit}
             handleChange={this.props.handleChange}
+            onClick={(option) => this.props.onClick(option)}
             />
         );
     }
@@ -162,7 +174,6 @@ class Options extends React.Component {
             "createGame": this.renderGameButton(),
             "joinGame": this.renderJoinGameButton(),
             "gameForm": this.renderGameForm(),
-            "backButton": this.renderBackButton(),
             "joinGameForm": this.renderJoinGameForm()
         }
         const display = displayArray.map(function(element) {
@@ -173,7 +184,7 @@ class Options extends React.Component {
             return (option)
         })
         return (
-            <div className ="options">
+            <div id="home-options" className ="grid">
                 {display}
             </div>
         )
@@ -319,8 +330,8 @@ class Home extends React.Component {
             )
         }
         return (
-            <div className = "home">
-                <Image/>
+            <div id ="home" className="container">
+                <Header/>
                 <Options
                 display = {this.state.display}
                 onClick = {(options) => this.handleClick(options)}
