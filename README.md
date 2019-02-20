@@ -12,11 +12,11 @@ module.exports =
 {
   client: "pg",
   connection: {
-    host: "ec2-54-235-247-209.compute-1.amazonaws.com",
-    port: "5432",
-    user: "ojxxmnsncgadwv",
-    password: "08c7b621ed0482dd95c9a73ba6a49ac2258a6fe4ba6439c249e762411cf68498",
-    database: "df2es3f1dhks7b",
+    host: "your credentials",
+    port: "your credentials",
+    user: "your credentials",
+    password: "your credentials",
+    database: "your credentials",
     ssl: true
   }
 }
