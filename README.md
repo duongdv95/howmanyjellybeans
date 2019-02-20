@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-git clone https://github.com/duongdv95/trello-clone.git
+git clone https://github.com/duongdv95/howmanyjellybeans.git
 
 Create a config.js file in the root folder with the following:
 
