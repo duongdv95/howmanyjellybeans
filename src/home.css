@@ -13,13 +13,14 @@ body {
 }
 
 #home-footer a {
-    color: #0059b3;
+    color: gray;
     text-decoration: none;
     font-weight: 700;
+    text-decoration: underline;
 }
 
 #home-footer a:hover {
-    background: #ffffb3;
+    color: #0059b3;
 }
 div.bg-image {
     content:url(https://images.unsplash.com/photo-1501755792080-cd51e405462c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60);
@@ -27,29 +28,46 @@ div.bg-image {
     margin: 0px auto;
 }
 
-h1 {
+h2 {
     margin: 0px;
     padding: 1em 0;
+    font-weight: 400;
 }
 
-#home-options {
+#home-options div, form div {
     padding: 1em 0;
+    justify-content: space-between;
+    width: 130px;
 }
 
 #home-options div {
     display: inline-block;
 }
 
-#home-options div button{
+#home-options div button, form button {
     background: white;
     padding: 1em;
     border: 1px solid;
+    width: 120px;
+    border-radius: 4px;
+    border-color: gray;
+    font-size: 11pt;
 }
 
-#home-options form .input {
+#home-options form input {
     margin: 0px auto;
     display: block;
-    text-align: center;
+    width: 220px;
+    height: 30px;
+    border-radius: 4px;
+    margin-top: 20px;
+    border: 1px solid gray;
+    padding: 0 15px;
+}
+
+#home-options form input:focus {
+    outline: none;
+    border: 1px solid #0099cc;
 }
 /* @media (min-width: 600px) {
 

@@ -16,9 +16,9 @@ import axios from "axios"
 function Header() {
     return (
         <div id="home-header" className ="grid">
-        <h1>
+        <h2>
             How many jellybeans?
-        </h1>
+        </h2>
         <div className="bg-image"></div>
         </div>
     )
@@ -28,7 +28,7 @@ function Footer() {
     return (
         <div id="home-footer" className="footer grid">
             <div>
-                <Link to={"/instructions"}>How to play</Link>
+                <Link to={"/instructions"}>Organize an event</Link>
             </div>
             <div>
                 <Link to={"/about"}>About</Link>    
@@ -54,7 +54,6 @@ function GameForm(props) {
         onSubmit ={props.handleSubmit}
         >
             <input 
-            className="input"
             name="hostName"
             type="text" 
             placeholder="Enter your name"
@@ -62,17 +61,20 @@ function GameForm(props) {
             onChange ={props.handleChange}
             />
             <input
-            className="input"
             name="winningNumber"
             type="text" 
             placeholder="Enter the winning guess"
             value={props.winningNumber}
             onChange ={props.handleChange}
             />
-            <input type="submit" value="Create Game"/>
-            <button type="button" onClick={() => props.onClick("backButton")}>
-                Back
-            </button>
+            <div>
+                <button> Create Game </button>
+            </div>
+            <div>
+                <button type="button" onClick={() => props.onClick("backButton")}>
+                    Back
+                </button>
+            </div>
         </form>
     )
 }
@@ -107,10 +109,14 @@ function JoinGameForm(props) {
             value={props.playerGuess}
             onChange ={props.handleChange}
             />
-            <input type="submit" value="Join game"/>
-            <button type="button" onClick={() => props.onClick("backButton")}>
-                Back
-            </button>
+            <div>
+                <button>Join Game</button>
+            </div>
+            <div>
+                <button type="button" onClick={() => props.onClick("backButton")}>
+                    Back
+                </button>
+            </div>
         </form>
     )
 }
