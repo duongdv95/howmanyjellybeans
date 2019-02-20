@@ -16,10 +16,12 @@ import axios from "axios"
 function Header() {
     return (
         <div id="home-header" className ="grid">
-        <h2>
-            How many jellybeans?
-        </h2>
-        <div className="bg-image"></div>
+            <div className="content-wrap">
+                <h2>
+                    How many jellybeans?
+                </h2>
+                <div className="bg-image"></div>
+            </div>
         </div>
     )
 }
@@ -27,11 +29,13 @@ function Header() {
 function Footer() {
     return (
         <div id="home-footer" className="footer grid">
-            <div>
-                <Link to={"/instructions"}>Organize an event</Link>
-            </div>
-            <div>
-                <Link to={"/about"}>About</Link>    
+            <div className="content-wrap">
+                <div>
+                    <Link to={"/instructions"}>Organize an event</Link>
+                </div>
+                <div>
+                    <Link to={"/about"}>About</Link>    
+                </div>
             </div>
         </div>
     )
@@ -189,7 +193,9 @@ class Options extends React.Component {
         })
         return (
             <div id="home-options" className ="grid">
-                {display}
+                <div className="content-wrap">
+                    {display}
+                </div>
             </div>
         )
     }

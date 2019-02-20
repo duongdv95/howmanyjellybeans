@@ -34,7 +34,7 @@ h2 {
     font-weight: 400;
 }
 
-#home-options div, form div {
+#home-options div div, form div {
     padding: 1em 0;
     justify-content: space-between;
     width: 130px;
@@ -69,16 +69,13 @@ h2 {
     outline: none;
     border: 1px solid #0099cc;
 }
-/* @media (min-width: 600px) {
-
-
+@media (min-width: 600px) {
     .grid {
         display: grid;
- 
+        grid-template-columns: 1fr repeat(2, minmax(auto, 25em)) 1fr;
     }
-    #home-header div {
-      
+
+    .content-wrap {
+        grid-column: 2 / 4;
     }
-    
-    
-  } */
+  }
