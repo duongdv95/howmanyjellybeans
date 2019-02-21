@@ -40,11 +40,11 @@ h2 {
     width: 130px;
 }
 
-#home-options div {
+#home-options div, #game-options div {
     display: inline-block;
 }
 
-#home-options div button, form button {
+#home-options div button, form button, #game-options div button {
     background: white;
     padding: 1em;
     border: 1px solid;
@@ -68,6 +68,45 @@ h2 {
 #home-options form input:focus {
     outline: none;
     border: 1px solid #0099cc;
+}
+
+#player-table {
+    display: grid;
+    grid-template-columns: 1fr repeat(2, minmax(auto, 10em)) 1fr;
+    padding: 2em 0;
+}
+
+#player-table-ranked {
+    display: grid;
+    grid-template-columns: 1fr repeat(3, minmax(auto, 5em)) 1fr;
+    padding: 2em 0;
+}
+
+#player-table .item, #player-table-ranked .item {
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3em;
+}
+
+#player-table .content-wrap {
+    grid-column: 2 / 4;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+}
+#player-table-ranked .content-wrap {
+    grid-column: 2 / 5;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+}
+#player-table .nested-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+#player-table-ranked .nested-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 @media (min-width: 600px) {
     .grid {

@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios"
+import {Link} from "react-router-dom";
 
 // Components Hierarchy
 // -Game
@@ -70,21 +71,25 @@ function JoinGameForm(props) {
 
 function LeaveButton(props) {
     return (
-        <button 
-        name="leaveButton"
-        onClick={(e) => props.onClick(e)}>
-        Leave Game
-        </button>
+        <div>
+            <button 
+            name="leaveButton"
+            onClick={(e) => props.onClick(e)}>
+            Leave Game
+            </button>
+        </div>
     )
 }
 
 function EndButton(props) {
     return (
-        <button 
-        name="endButton"
-        onClick={(e) => props.onClick(e)}>
-        End Game
-        </button>
+        <div>
+            <button 
+            name="endButton"
+            onClick={(e) => props.onClick(e)}>
+            End Game
+            </button>
+        </div>
     )
 }
 
@@ -158,7 +163,9 @@ class Options extends React.Component {
             return (option)
         }) : null
         return (
-            display
+            <div id="game-options">
+                {display}
+            </div>
         )
     }
 }
@@ -177,36 +184,26 @@ class PlayerTable extends React.Component {
             }
             if(players.length !== 0) {
                 return (!gameEnded) ? (
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>
-                                Player
-                            </th>
-                            <th>
-                                Guess
-                            </th>
-                        </tr>
-                        {playerMap}
-                    </tbody>
-                </table>
+                <div id="player-table">
+                    <div className="content-wrap">
+                        <div className="nested-grid">
+                            <div className="item">Player</div>
+                            <div className="item">Guess</div>
+                            {playerMap}
+                        </div>
+                    </div>
+                </div>
             ) : (
-                <table>
-                    <tbody>
-                        <tr>
-                            <th>
-                                Player
-                            </th>
-                            <th>
-                                Guess
-                            </th>
-                            <th>
-                                Rank
-                            </th>
-                        </tr>
+                <div id="player-table-ranked">
+                    <div className="content-wrap">
+                        <div className="nested-grid">
+                        <div className="item">Player</div>
+                        <div className="item">Guess</div>
+                        <div className="item">Rank</div>
                         {playerMap}
-                    </tbody>
-                </table>
+                        </div>
+                    </div>
+                </div>
             )
             }
         }
@@ -217,6 +214,21 @@ class PlayerTable extends React.Component {
             </div>
         )
     }
+}
+
+function Footer() {
+    return (
+        <div id="home-footer" className="grid">
+            <div className="content-wrap">
+                <div>
+                    <Link to={"/instructions"}>Organize an event</Link>
+                </div>
+                <div>
+                    <Link to={"/about"}>About</Link>    
+                </div>
+            </div>
+        </div>
+    )
 }
 
 class Game extends React.Component {
@@ -291,27 +303,27 @@ class Game extends React.Component {
         if(this.state.status) {
             return playersWithoutHost.map(function(element) {
                 return (!gameEnded) ? (
-                    <tr key={element.id}>
-                        <td>
+                    <React.Fragment key={element.id}>
+                        <div className="item">
                             {element.username + playerIndicator(element)}
                             {DeletePlayerButton(onClick, element.id, isHost)}
-                        </td>
-                        <td>
+                        </div>
+                        <div className="item">
                             {element.guess}
-                        </td>
-                    </tr>
+                        </div>
+                    </React.Fragment>
                 ) : (
-                    <tr key={element.id}>
-                        <td>
+                    <React.Fragment key={element.id}>
+                        <div className="item">
                             {element.username}
-                        </td>
-                        <td>
+                        </div>
+                        <div className="item">
                             {element.guess}
-                        </td>
-                        <td>
+                        </div>
+                        <div className="item">
                             {element.rank}
-                        </td>
-                    </tr>
+                        </div>
+                    </React.Fragment>
                 )
             })
         } else {
@@ -488,6 +500,7 @@ class Game extends React.Component {
                 status = {this.state.status}
                 gameEnded = {this.state.gameEnded}
                 />
+                <Footer/>
             </div>
         )
     }
