@@ -251,7 +251,7 @@ class Game extends React.Component {
 
     async getGameStatus() {
         try {
-            const response = await axios(`/${this.state.accessCode}/status`)
+            const response = await axios(`/api/${this.state.accessCode}/status`)
             this._isMounted && this.setState({gameEnded: response.data.message})
             return response.data.message
         } catch (error) {
@@ -261,7 +261,7 @@ class Game extends React.Component {
 
     async getPlayers() {
         try {
-            const response = await axios(`/${this.state.accessCode}/players`)
+            const response = await axios(`/api/${this.state.accessCode}/players`)
             return response
         } catch (error) {
             return error.response
@@ -369,7 +369,7 @@ class Game extends React.Component {
 
     async joinGame(accessCode, playerName, playerGuess) {
         try {
-            const response = await axios.post("/addplayer", 
+            const response = await axios.post("/api/addplayer", 
             {    
                 "username": playerName,
                 "guess": playerGuess,
@@ -399,7 +399,7 @@ class Game extends React.Component {
 
     async deletePlayer(accessCode, playerID) {
         try {
-            const response = await axios.put("/deletePlayer", 
+            const response = await axios.put("/api/deletePlayer", 
             {    
                 "accessCode": accessCode,
                 "playerID": playerID
@@ -412,7 +412,7 @@ class Game extends React.Component {
 
     async leaveGame(accessCode) {
         try {
-            const response = await axios.put("/leaveGame", 
+            const response = await axios.put("/api/leaveGame", 
             {    
                 "accessCode": accessCode
             })
@@ -425,7 +425,7 @@ class Game extends React.Component {
     async getSortedPlayers() {
         const accessCode = this.state.accessCode
         try {
-            const response = await axios.get(`/${accessCode}/sortPlayers`, 
+            const response = await axios.get(`/api/${accessCode}/sortPlayers`, 
             {    
                 "accessCode": accessCode
             })
@@ -437,7 +437,7 @@ class Game extends React.Component {
 
     async endGame(accessCode) {
         try {
-            const response = await axios.put(`/${accessCode}/endGame`, 
+            const response = await axios.put(`/api/${accessCode}/endGame`, 
             {    
                 "accessCode": accessCode
             })
@@ -516,3 +516,5 @@ function isNumerical(guess) {
 // "build": "react-scripts build",
 // "test": "react-scripts test",
 // "eject": "react-scripts eject"
+
+//"proxy": "http://localhost:5000"

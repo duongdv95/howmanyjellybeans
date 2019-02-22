@@ -221,7 +221,7 @@ class Home extends React.Component {
 
     getAccessCode(hostName, winningNumber) {
         try {
-            const response = axios.post("/createGame", {
+            const response = axios.post("/api/createGame", {
                 "username": hostName,
                 "winningNumber": winningNumber
             })
@@ -233,7 +233,7 @@ class Home extends React.Component {
 
     async joinGame(accessCode, playerName, playerGuess) {
         try {
-            const response = await axios.post("/addplayer", 
+            const response = await axios.post("/api/addplayer", 
             {    
                 "username": playerName,
                 "guess": playerGuess,
