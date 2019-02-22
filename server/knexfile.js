@@ -4,7 +4,7 @@ try {
 } catch(e) {
   module.exports = 
   {
-    client: "mysql",
+    client: "pg",
     connection: {
       host: process.env.DBHOST,
       port: process.env.DBPORT,
