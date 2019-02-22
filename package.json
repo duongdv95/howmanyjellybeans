@@ -20,8 +20,8 @@
   "scripts": {
     "react-server": "react-scripts start",
     "express-server": "node server/app.js",
-    "start": "node server/app.js",
-    "both": "concurrently \"npm run build\" \"npm run express-server\"",
+    "start": "npm run both",
+    "both": "concurrently \"npm run build\" \"node server/app.js\"",
     "build": "react-scripts build"
   },
   "eslintConfig": {
