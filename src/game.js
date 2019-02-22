@@ -26,7 +26,7 @@ function GameInfo(props) {
         )
     })
     const displayLoading = (props.status) ? (
-        <div>
+        <div id="game-info">
             <h3>Access Code: {props.accessCode}</h3>
             <h3>Host: {hostUsernamesArray} </h3>
             {props.message}
@@ -64,7 +64,7 @@ function JoinGameForm(props) {
             value={props.playerGuess}
             onChange ={props.handleChange}
             />
-            <input type="submit" value="Join game"/>
+            <button>Join Game</button>
         </form>
     )
 }
@@ -101,7 +101,7 @@ function DeletePlayerButton(onClick, playerID, isHost) {
         onClick={(e) => {
             onClick(e)
         }}>
-        X
+        <i className="fas fa-times"></i>
         </button>
     ) : (null)
 }
@@ -328,7 +328,6 @@ class Game extends React.Component {
             })
         } else {
             return (null)
-            //<tr><td></td></tr>
         }
     }
 
@@ -473,8 +472,8 @@ class Game extends React.Component {
             return element.host === true
         })
         return (
-            <div>
-                <h1>How many jellybeans?</h1>
+            <div id="game">
+                <h2>How many jellybeans?</h2>
                 <GameInfo 
                 accessCode = {this.state.accessCode}
                 hostsArray = {hostsArray}
@@ -511,3 +510,9 @@ export default Game
 function isNumerical(guess) {
     return (isNaN(guess)) ? false : true
 }
+
+// package.json scripts
+// "start": "react-scripts start"
+// "build": "react-scripts build",
+// "test": "react-scripts test",
+// "eject": "react-scripts eject"

@@ -5,7 +5,7 @@ body {
 }
 
 #home-footer {
-    padding: 0.3em 0;
+    padding: 0.5em 0;
 }
 
 #home-footer div {
@@ -21,6 +21,7 @@ body {
 
 #home-footer a:hover {
     color: #0059b3;
+    cursor: pointer;
 }
 div.bg-image {
     content:url(https://images.unsplash.com/photo-1501755792080-cd51e405462c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60);
@@ -34,8 +35,11 @@ h2 {
     font-weight: 400;
 }
 
-#home-options div div, form div {
-    padding: 1em 0;
+#game-options, #home-options {
+    padding: 0.5em;
+}
+
+#home-options div div, form div, #game-options div {
     justify-content: space-between;
     width: 130px;
 }
@@ -44,6 +48,11 @@ h2 {
     display: inline-block;
 }
 
+#game-options button:hover, #home-options button:hover {
+    background: gray;
+    color: white;
+    cursor: pointer;
+}
 #home-options div button, form button, #game-options div button {
     background: white;
     padding: 1em;
@@ -51,16 +60,15 @@ h2 {
     width: 120px;
     border-radius: 4px;
     border-color: gray;
-    font-size: 11pt;
+    font-size: 0.9em;
 }
 
-#home-options form input {
-    margin: 0px auto;
+#home-options form input, #game-options form input {
+    margin: 1em auto;
     display: block;
     width: 220px;
     height: 30px;
     border-radius: 4px;
-    margin-top: 20px;
     border: 1px solid gray;
     padding: 0 15px;
 }
@@ -70,12 +78,29 @@ h2 {
     border: 1px solid #0099cc;
 }
 
+
 #player-table {
     display: grid;
     grid-template-columns: 1fr repeat(2, minmax(auto, 10em)) 1fr;
-    padding: 2em 0;
+    padding: 0.5em 0;
 }
 
+#player-table button {
+    border: none;
+    background: white;
+    outline: none;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+#player-table button i {
+    outline: none;
+    pointer-events: none;
+}
+
+#player-table button:hover {
+    color: #4286f4;
+}
 #player-table-ranked {
     display: grid;
     grid-template-columns: 1fr repeat(3, minmax(auto, 5em)) 1fr;
@@ -108,6 +133,17 @@ h2 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
 }
+
+#game-info {
+    padding: 0.5em;
+    font-size: 0.8em;
+}
+
+#game-info h3 {
+    margin: 0;
+    padding: 0.1em;
+}
+
 @media (min-width: 600px) {
     .grid {
         display: grid;

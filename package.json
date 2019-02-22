@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
+    "concurrently": "^4.1.0",
     "connect-session-knex": "^1.4.0",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
@@ -17,10 +18,9 @@
     "shortid": "^2.2.14"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "react-server": "react-scripts start",
+    "express-server": "node server/app.js",
+    "start": "concurrently \"npm run react-server\" \"npm run express-server\""
   },
   "eslintConfig": {
     "extends": "react-app"
