@@ -9,7 +9,7 @@ const knexfile         = require("./knexfile.js");
 const knex             = require("knex")(knexfile);
 const path             = require("path");
 
-app.use(express.static(path.join(__dirname, '/build')));
+app.use(express.static(path.join(__dirname, '/../../build')));
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -107,7 +107,7 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
 })
 
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname + "/build/index.html"));
+    res.sendFile(path.join(__dirname + "/../../build/index.html"));
 })
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
