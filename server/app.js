@@ -175,7 +175,7 @@ async function gameNotOver(req, res, next) {
 }
 
 
-app.listen(5000, function() {
+app.listen(process.env.PORT, function() {
     // console.log(process.env.PORT)
     console.log("Express server started.")
 })
