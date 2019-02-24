@@ -26,7 +26,6 @@ async function sortPlayerRank({accessCode}) {
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
     })
-    const gameStatusResponse = await gameStatus({accessCode});
     const rankedPlayersArray = playersArray.map(function(obj, index) {
         var removeSessionID = {
             "username": obj.username, 
@@ -37,7 +36,23 @@ async function sortPlayerRank({accessCode}) {
             "rank": index + 1}
             return removeSessionID
     })
-    return {status: true, message: rankedPlayersArray.concat(hostsArray), inDB: true, gameEnded: gameStatusResponse.message}
+    const rankedPlayers = rankedPlayersArray.concat(hostsArray);
+    const sortPlayerResponse = await knex("games").where({access_code: accessCode}).update({ranked_players: JSON.stringify(rankedPlayers)});
+    if (sortPlayerResponse) {
+        return {status: true, message: sortPlayerResponse}
+    } else {
+        return {status: false, message: "Error sorting players!"}
+    }
+}
+
+async function getSortedPlayersRank({accessCode}) {
+    const [response] = await knex("games").where({access_code: accessCode}).select("ranked_players")
+    if(!response) {
+        return {status: false, message: "Invalid access code"}
+    }
+    const gameStatusResponse = await gameStatus({accessCode});
+    const rankedPlayers = response.ranked_players
+    return  {status: true, message: rankedPlayers, inDB: true, gameEnded: gameStatusResponse.message}
 }
 
 async function createGame({playerData, winningNumber}) {
@@ -51,7 +66,8 @@ async function createGame({playerData, winningNumber}) {
             access_code, 
             players: JSON.stringify([playerData]), 
             winning_number: winningNumber,
-            game_end: false
+            game_end: false,
+            ranked_players: JSON.stringify([])
             }
         )
         return response ? {status: true, message: access_code} : {status: false, message: "Error! could not create game."}
@@ -233,5 +249,6 @@ module.exports = {
     updatePlayer,
     endGame,
     gameStatus,
-    getGames
+    getGames,
+    getSortedPlayersRank
 }

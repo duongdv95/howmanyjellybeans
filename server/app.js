@@ -9,7 +9,7 @@ const knexfile         = require("./knexfile.js");
 const knex             = require("knex")(knexfile);
 const path             = require("path");
 
-app.use(express.static(path.join(__dirname, '/../build')));
+// app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -43,7 +43,7 @@ app.get("/api/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
     // console.log("Inside sortplayers")
     // console.log(req.sessionID)
     const accessCode = req.params.id
-    const response = await pgFunctions.sortPlayerRank({accessCode});
+    const response = await pgFunctions.getSortedPlayersRank({accessCode});
     response ? res.status(200).json(response) : res.status(400).json(response.message)
 })
 
@@ -61,7 +61,12 @@ app.post("/api/addPlayer", gameNotOver, async (req, res) => {
     const accessCode = req.body.accessCode
     const playerData = generatePlayerObj({username, guess, host: false, sessionID: req.sessionID})
     const response = await pgFunctions.addPlayer({playerData, accessCode})
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
+    if(response.status) {
+        res.status(200).json(response)
+        await pgFunctions.sortPlayerRank({accessCode})
+    } else {
+        res.status(400).json(response)
+    }
 })
 
 // Restricted to host
@@ -106,9 +111,9 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname + "/../build/index.html"));
-})
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname + "/../build/index.html"));
+// })
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
         username,
@@ -175,7 +180,7 @@ async function gameNotOver(req, res, next) {
 }
 
 
-app.listen(process.env.PORT || 3000, function() {
+app.listen(5000, function() {
     // console.log(process.env.PORT)
     console.log("Express server started.")
 })
