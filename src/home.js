@@ -57,6 +57,9 @@ function GameForm(props) {
         name="createGameClicked"
         onSubmit ={props.handleSubmit}
         >
+            <div>
+                Enter your name and winning guess to create
+            </div>
             <input 
             name="hostName"
             type="text" 
@@ -72,7 +75,7 @@ function GameForm(props) {
             onChange ={props.handleChange}
             />
             <div>
-                <button> Create Game </button>
+                <button> Submit guess </button>
             </div>
             <div>
                 <button type="button" onClick={() => props.onClick("backButton")}>

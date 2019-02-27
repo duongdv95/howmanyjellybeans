@@ -18,10 +18,10 @@
     "shortid": "^2.2.14"
   },
   "scripts": {
-    "react-server": "react-scripts start",
-    "express-server": "node server/app.js",
+    "dev-start": "react-scripts start",
     "start": "npm run both",
-    "both": "concurrently \"npm run build\" \"node server/app.js\"",
+    "dev-test": "concurrently \"npm run dev-start\" \"nodemon server/app.js\"",
+    "both": "concurrently \"npm run build\" \"nodemon server/app.js\"",
     "build": "react-scripts build"
   },
   "eslintConfig": {
@@ -32,5 +32,6 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "proxy": "http://localhost:5000"
 }

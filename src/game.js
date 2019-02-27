@@ -197,9 +197,9 @@ class PlayerTable extends React.Component {
                 <div id="player-table-ranked">
                     <div className="content-wrap">
                         <div className="nested-grid">
+                        <div className="item">Rank</div>
                         <div className="item">Player</div>
                         <div className="item">Guess</div>
-                        <div className="item">Rank</div>
                         {playerMap}
                         </div>
                     </div>
@@ -315,13 +315,13 @@ class Game extends React.Component {
                 ) : (
                     <React.Fragment key={element.id}>
                         <div className="item">
+                            {element.rank}
+                        </div>
+                        <div className="item">
                             {element.username}
                         </div>
                         <div className="item">
                             {element.guess}
-                        </div>
-                        <div className="item">
-                            {element.rank}
                         </div>
                     </React.Fragment>
                 )
@@ -455,7 +455,7 @@ class Game extends React.Component {
     async componentDidMount() {
         this._isMounted = true
         this._isMounted && this.getGameStatus()
-        this.loadData(this.state.gameEnded)
+        // this.loadData(this.state.gameEnded)
         this.myInterval = setInterval(() => {
             this.loadData(this.state.gameEnded)
         }, 2000)

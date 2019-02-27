@@ -2,8 +2,15 @@ import React from "react";
 
 function HowToPlay() {
     return (
-        <div>
-            Lorem ipsum dolor sit amet, hinc integre duo in, saepe audire epicurei sit id, altera intellegam appellantur ne sed. Id his aeque probatus, epicuri convenire suscipiantur at per. Eam ei choro quaeque definitiones. An partiendo erroribus est. Bonorum legimus nam et, ad verear luptatum erroribus duo. Ea sed delectus inimicus assueverit. Ei mel aliquip virtute tractatos, case solum copiosae has ad, ex nec tota prodesset.
+        <div id="instructions">
+        <h2>Organize a family/work event</h2>
+        <ul>
+            <li>Get a jar</li>
+            <li>Fill it with hershey kisses or jellybeans that you have counted</li>
+            <li>Create a game making sure to enter the winning number</li>
+            <li>Have people join on their phones via the access code</li>
+            <li>End the game when you are ready</li>
+        </ul>
         </div>
     )
 }

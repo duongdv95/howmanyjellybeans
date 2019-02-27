@@ -87,7 +87,7 @@ h2 {
 
 #player-table button {
     border: none;
-    background: white;
+    background: inherit;
     outline: none;
     font-size: 1em;
     cursor: pointer;
@@ -132,6 +132,18 @@ h2 {
 #player-table-ranked .nested-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+}
+
+#player-table-ranked .nested-grid  .item:nth-child(-n+3) {
+    font-weight: 600;
+}
+
+#player-table .nested-grid  .item:nth-child(-n+2) {
+    font-weight: 600;
+}
+
+#player-table .nested-grid .item:nth-child(4n+1), .item:nth-child(4n+2)  {
+    background: #d9d9d9;
 }
 
 #game-info {
