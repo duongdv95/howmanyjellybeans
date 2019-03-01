@@ -8,6 +8,28 @@ const KnexSessionStore = require("connect-session-knex")(session);
 const knexfile         = require("./knexfile.js");
 const knex             = require("knex")(knexfile);
 const path             = require("path");
+const server           = require("http").createServer(app);
+const socket           = require("socket.io");
+const io               = socket(server)
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+io.on('connection', function (socket) {
+    console.log(`Socket ${socket.id} connected.`)
+    socket.on('disconnect', () => {
+        console.log(`Socket ${socket.id} disconnected.`);
+      });
+    socket.on('subscribeToTimer', (interval) => {
+        console.log('client is subscribing to timer with interval', interval);
+        setInterval(() => {
+            socket.emit('timer', new Date());
+          }, interval);
+    });
+
+    // socket.on("subscribeToDatabase", (accessCode) => {
+    //     console.log("client is subscribing to access code", accessCode)
+    // })
+ });
 
 // app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
@@ -40,8 +62,6 @@ app.get("/api/:id/players", async (req, res) => {
 
 // Restricted to host
 app.get("/api/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
-    // console.log("Inside sortplayers")
-    // console.log(req.sessionID)
     const accessCode = req.params.id
     const response = await pgFunctions.getSortedPlayersRank({accessCode});
     response ? res.status(200).json(response) : res.status(400).json(response.message)
@@ -55,7 +75,7 @@ app.post("/api/createGame", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.post("/api/addPlayer", gameNotOver, async (req, res) => {
+app.post("/api/addPlayer", gameNotOver, checkDuplicateUsers, async (req, res) => {
     const username = req.body.username
     const guess = req.body.guess
     const accessCode = req.body.accessCode
@@ -64,6 +84,8 @@ app.post("/api/addPlayer", gameNotOver, async (req, res) => {
     if(response.status) {
         res.status(200).json(response)
         await pgFunctions.sortPlayerRank({accessCode})
+        // console.log(req.body.socketId);
+        // io.sockets.emit("connection:sid", "yeet")
     } else {
         res.status(400).json(response)
     }
@@ -150,18 +172,15 @@ function isAllowed(args) {
     return async function (req, res, next) {
         const sessionID = req.session.id
         const accessCode = req.params.id || req.body.accessCode
-        const gameStatus = await pgFunctions.gameStatus({accessCode});
-        if(gameStatus.message === true) {
+        const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
+        if(response.gameEnded === true) {
             return next()
         }
-        const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
         const playersArray = response.message
-        // console.log(sessionID, accessCode, response, playersArray)
         const condition = function(i) {
             return (isHost) ? (playersArray[i].sessionID == sessionID && playersArray[i].host == true) : (playersArray[i].sessionID == sessionID)
         }
         for(let i = 0; i < playersArray.length; i++) {
-            // console.log(playersArray[i].sessionID, sessionID, playersArray[i].host)
             if(condition(i)) {
                 return next()
             }
@@ -179,8 +198,24 @@ async function gameNotOver(req, res, next) {
     res.status(400).json({status: false, message: "Game already ended by host"})
 }
 
+async function checkDuplicateUsers(req, res, next) {
+    const accessCode = req.params.id || req.body.accessCode
+    const sessionID = req.session.id
+    const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
+    const playersArray = response.message
+    let duplicateFound = false;
+    playersArray.forEach((element) => {
+        if(element.sessionID === sessionID) {
+            duplicateFound = true;
+            return res.status(400).json({status: false, message: "User already in game"})
+        }
+    })
+    if(!duplicateFound) {
+        return next();
+    }
+}
 
-app.listen(5000, function() {
-    // console.log(process.env.PORT)
-    console.log("Express server started.")
+const port = process.env.PORT || 5000;
+server.listen(port, function() {
+    console.log(`Server listening at port ${port}`)
 })

@@ -15,7 +15,9 @@
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.2",
-    "shortid": "^2.2.14"
+    "shortid": "^2.2.14",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
   },
   "scripts": {
     "dev-start": "react-scripts start",

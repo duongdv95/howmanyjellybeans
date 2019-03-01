@@ -1,6 +1,10 @@
 import React from "react";
 import axios from "axios"
 import {Link} from "react-router-dom";
+import io from "socket.io-client";
+
+var socket = io("http://localhost:5000");
+
 
 // Components Hierarchy
 // -Game
@@ -230,6 +234,17 @@ function Footer() {
         </div>
     )
 }
+function subscribeToTimer(callback) {
+    socket.emit('subscribeToTimer', 1000);
+    socket.on('timer', timestamp => {
+        callback(null, timestamp)
+    });
+}
+
+function subscribeToDatabase(accessCode) {
+    socket.emit('subscribeToDatabase', accessCode);
+    // socket.on('timer', timestamp => callback(null, timestamp));
+}
 
 class Game extends React.Component {
     constructor(props) {
@@ -245,8 +260,12 @@ class Game extends React.Component {
             gameEnded: false,
             inDB: false,
             playerName: "",
-            playerGuess: null
+            playerGuess: null,
+            timestamp: 'no timestamp yet'
         }
+        subscribeToTimer((err, timestamp) => this.setState({ 
+            timestamp 
+          }));
     }
 
     async getGameStatus() {
@@ -459,6 +478,7 @@ class Game extends React.Component {
         this.myInterval = setInterval(() => {
             this.loadData(this.state.gameEnded)
         }, 2000)
+        // subscribeToDatabase(this.state.accessCode)
     }
 
     componentWillUnmount() {
@@ -474,6 +494,9 @@ class Game extends React.Component {
         return (
             <div id="game">
                 <h2>How many jellybeans?</h2>
+                <div>
+                This is the timer value: {this.state.timestamp}
+                </div>
                 <GameInfo 
                 accessCode = {this.state.accessCode}
                 hostsArray = {hostsArray}
