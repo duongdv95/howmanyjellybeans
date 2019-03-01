@@ -332,16 +332,20 @@ class Home extends React.Component {
     
     render() {
         const response = this.state.response
-        let errorMessage
-        if(response.status === false) {
+        let errorMessage = (<div></div>)
+        if(response.message ==="Game already ended by host") {
             errorMessage = (
-                <div>{response.message}</div>
-            ) 
-        } else {
+                <div>{response.message}.</div>
+            )
+        }      
+        if(response.message ==="User already in game") {
             errorMessage = (
-                <div></div>
+                <div>
+                You already joined this game. Click <Link to={`/${this.state.accessCode}`}>here</Link> to return.
+                </div>
             )
         }
+        
         return (
             <div id ="home" className="container">
                 <Header/>
