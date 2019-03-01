@@ -19,16 +19,21 @@ io.on('connection', function (socket) {
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected.`);
       });
+
+    socket.on("connect", function(socket) {
+        var sessionid = socket.id
+    })
+    socket.on("subscribeToDatabase", (accessCode) => {
+        console.log("client is subscribing to access code", accessCode)
+    })
+
     socket.on('subscribeToTimer', (interval) => {
-        console.log('client is subscribing to timer with interval', interval);
+        // console.log('client is subscribing to timer with interval', interval);
         setInterval(() => {
             socket.emit('timer', new Date());
-          }, interval);
+        }, interval);
     });
-
-    // socket.on("subscribeToDatabase", (accessCode) => {
-    //     console.log("client is subscribing to access code", accessCode)
-    // })
+    
  });
 
 // app.use(express.static(path.join(__dirname, '/../build')));
@@ -85,7 +90,7 @@ app.post("/api/addPlayer", gameNotOver, checkDuplicateUsers, async (req, res) =>
         res.status(200).json(response)
         await pgFunctions.sortPlayerRank({accessCode})
         // console.log(req.body.socketId);
-        // io.sockets.emit("connection:sid", "yeet")
+        io.sockets.emit("databaseUpdated", true)
     } else {
         res.status(400).json(response)
     }
@@ -110,7 +115,12 @@ app.put("/api/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode
     const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
+    if(response.status) {
+        res.status(200).json(response)
+        io.sockets.emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
 })
 
 app.put("/api/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
@@ -121,9 +131,15 @@ app.put("/api/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, 
         req.session.destroy(function(){
           });
     }
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
+    if(response.status) {
+        res.status(200).json(response)
+        io.sockets.emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
 })
 
+//Unused endpoint
 app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
     const playerID = req.body.playerID
     const accessCode = req.body.accessCode

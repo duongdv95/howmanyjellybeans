@@ -9,7 +9,7 @@ import About from './about.js';
 class App extends React.Component {
     render() {
         return (
-            <BrowserRouter>
+            <BrowserRouter forceRefresh={true}>
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/instructions/" component={Instructions} />

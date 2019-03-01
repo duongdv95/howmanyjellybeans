@@ -241,9 +241,18 @@ function subscribeToTimer(callback) {
     });
 }
 
-function subscribeToDatabase(accessCode) {
+function subscribeToDatabase({setSocketID, accessCode, getUpdates}) {
     socket.emit('subscribeToDatabase', accessCode);
-    // socket.on('timer', timestamp => callback(null, timestamp));
+    socket.on('connect', function() {
+        setSocketID(socket.id)
+        getUpdates()
+    });
+    socket.on('databaseUpdated', databaseUpdated => {
+        console.log(`Database Updated: ${databaseUpdated}`);
+        if(databaseUpdated) {
+            getUpdates()
+        }
+    });
 }
 
 class Game extends React.Component {
@@ -261,7 +270,8 @@ class Game extends React.Component {
             inDB: false,
             playerName: "",
             playerGuess: null,
-            timestamp: 'no timestamp yet'
+            timestamp: 'no timestamp yet',
+            socketID: "no socket ID yet"
         }
         subscribeToTimer((err, timestamp) => this.setState({ 
             timestamp 
@@ -470,20 +480,32 @@ class Game extends React.Component {
             return error.response
         }
     }
-
+    
     async componentDidMount() {
         this._isMounted = true
         this._isMounted && this.getGameStatus()
-        // this.loadData(this.state.gameEnded)
-        this.myInterval = setInterval(() => {
+        this._isMounted && subscribeToDatabase({
+        setSocketID: (socketID) => {
+            this.setState({socketID})
+        }, 
+        accessCode: this.state.accessCode, 
+        getUpdates: () => {
             this.loadData(this.state.gameEnded)
-        }, 2000)
-        // subscribeToDatabase(this.state.accessCode)
+        }}
+        )
+        
+        // this.myInterval = setInterval(() => {
+        //     this.loadData(this.state.gameEnded)
+        // }, 2000)
     }
 
     componentWillUnmount() {
         this._isMounted = false
-        clearInterval(this.myInterval)
+        // socket.removeAllListeners("connect");
+        // socket.removeAllListeners("databaseUpdated");
+        socket.removeAllListeners("timer");
+        // clearInterval(this.myInterval)
+
     }
 
     render() {
