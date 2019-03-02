@@ -6,6 +6,7 @@ import Game from './game.js';
 import Instructions from './instructions.js';
 import Unauthorized from './unauthorized.js';
 import About from './about.js';
+
 class App extends React.Component {
     render() {
         return (

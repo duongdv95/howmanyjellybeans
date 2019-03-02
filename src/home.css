@@ -142,9 +142,13 @@ h2 {
     font-weight: 600;
 }
 
-#player-table .nested-grid .item:nth-child(4n+1), .item:nth-child(4n+2)  {
+#player-table div .item:nth-child(4n+1), .item:nth-child(4n+2)  {
     background: #d9d9d9;
 }
+
+/* #player-table-ranked .nested-grid .item:nth-child(4n+1), .item:nth-child(4n+2)  {
+    background: #d9d9d9;
+} */
 
 #game-info {
     padding: 0.5em;

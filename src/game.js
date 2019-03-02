@@ -201,10 +201,10 @@ class PlayerTable extends React.Component {
                 <div id="player-table-ranked">
                     <div className="content-wrap">
                         <div className="nested-grid">
-                        <div className="item">Rank</div>
-                        <div className="item">Player</div>
-                        <div className="item">Guess</div>
-                        {playerMap}
+                            <div className="item">Rank</div>
+                            <div className="item">Player</div>
+                            <div className="item">Guess</div>
+                            {playerMap}
                         </div>
                     </div>
                 </div>
@@ -234,21 +234,15 @@ function Footer() {
         </div>
     )
 }
-function subscribeToTimer(callback) {
-    socket.emit('subscribeToTimer', 1000);
-    socket.on('timer', timestamp => {
-        callback(null, timestamp)
-    });
-}
 
 function subscribeToDatabase({setSocketID, accessCode, getUpdates}) {
-    socket.emit('subscribeToDatabase', accessCode);
     socket.on('connect', function() {
+        socket.emit('subscribeToDatabase', accessCode);
         setSocketID(socket.id)
         getUpdates()
     });
     socket.on('databaseUpdated', databaseUpdated => {
-        console.log(`Database Updated: ${databaseUpdated}`);
+        // console.log(`Database Updated: ${databaseUpdated}`);
         if(databaseUpdated) {
             getUpdates()
         }
@@ -270,12 +264,8 @@ class Game extends React.Component {
             inDB: false,
             playerName: "",
             playerGuess: null,
-            timestamp: 'no timestamp yet',
             socketID: "no socket ID yet"
         }
-        subscribeToTimer((err, timestamp) => this.setState({ 
-            timestamp 
-          }));
     }
 
     async getGameStatus() {
@@ -471,7 +461,7 @@ class Game extends React.Component {
                 "accessCode": accessCode
             })
             if (response.data.gameEnded) {
-                this.setState({gameEnded: true})
+                this.setState({gameEnded: true, status: false})
             } else {
                 this.setState({gameEnded: false})
             }
@@ -483,29 +473,23 @@ class Game extends React.Component {
     
     async componentDidMount() {
         this._isMounted = true
-        this._isMounted && this.getGameStatus()
         this._isMounted && subscribeToDatabase({
         setSocketID: (socketID) => {
             this.setState({socketID})
         }, 
         accessCode: this.state.accessCode, 
-        getUpdates: () => {
-            this.loadData(this.state.gameEnded)
+        getUpdates: async () => {
+            let gameEnded = await this.getGameStatus()
+            if(gameEnded) {this.setState({status: false})}
+            await this.loadData(gameEnded)
         }}
         )
         
-        // this.myInterval = setInterval(() => {
-        //     this.loadData(this.state.gameEnded)
-        // }, 2000)
     }
 
     componentWillUnmount() {
         this._isMounted = false
-        // socket.removeAllListeners("connect");
-        // socket.removeAllListeners("databaseUpdated");
         socket.removeAllListeners("timer");
-        // clearInterval(this.myInterval)
-
     }
 
     render() {
@@ -516,9 +500,6 @@ class Game extends React.Component {
         return (
             <div id="game">
                 <h2>How many jellybeans?</h2>
-                <div>
-                This is the timer value: {this.state.timestamp}
-                </div>
                 <GameInfo 
                 accessCode = {this.state.accessCode}
                 hostsArray = {hostsArray}

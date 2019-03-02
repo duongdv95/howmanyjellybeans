@@ -11,30 +11,21 @@ const path             = require("path");
 const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
+var clients            = [];
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', function (socket) {
-    console.log(`Socket ${socket.id} connected.`)
+    // console.log(`Socket ${socket.id} connected.`)
     socket.on('disconnect', () => {
-        console.log(`Socket ${socket.id} disconnected.`);
+        // console.log(`Socket ${socket.id} disconnected.`);
       });
 
-    socket.on("connect", function(socket) {
-        var sessionid = socket.id
-    })
     socket.on("subscribeToDatabase", (accessCode) => {
-        console.log("client is subscribing to access code", accessCode)
+        socket.join(accessCode)
     })
-
-    socket.on('subscribeToTimer', (interval) => {
-        // console.log('client is subscribing to timer with interval', interval);
-        setInterval(() => {
-            socket.emit('timer', new Date());
-        }, interval);
-    });
-    
  });
+ 
 
 // app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
@@ -90,7 +81,7 @@ app.post("/api/addPlayer", gameNotOver, checkDuplicateUsers, async (req, res) =>
         res.status(200).json(response)
         await pgFunctions.sortPlayerRank({accessCode})
         // console.log(req.body.socketId);
-        io.sockets.emit("databaseUpdated", true)
+        io.to(accessCode).emit("databaseUpdated", true)
     } else {
         res.status(400).json(response)
     }
@@ -106,7 +97,15 @@ app.delete("/api/:id/deleteGame", isAllowed({role: "host"}), async (req, res) =>
 app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.endGame({accessCode});
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
+    if(response.status) {
+        res.status(200).json(response)
+        // setTimeout(() => {
+        //     io.to(accessCode).emit("databaseUpdated", true)
+        // }, 1000)
+        io.to(accessCode).emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
 })
 
 // Restricted to host
@@ -117,7 +116,7 @@ app.put("/api/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
     if(response.status) {
         res.status(200).json(response)
-        io.sockets.emit("databaseUpdated", true)
+        io.to(accessCode).emit("databaseUpdated", true)
     } else {
         res.status(400).json(response)
     }
@@ -133,7 +132,7 @@ app.put("/api/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, 
     }
     if(response.status) {
         res.status(200).json(response)
-        io.sockets.emit("databaseUpdated", true)
+        io.to(accessCode).emit("databaseUpdated", true)
     } else {
         res.status(400).json(response)
     }
