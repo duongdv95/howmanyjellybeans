@@ -88,10 +88,11 @@ async function endGame({accessCode}) {
     return (response) ? {status: true, message: `Succesfully ended game /${accessCode}`, gameEnded: true} : {status: false, message: "Invalid access code"}
 }
 
-async function gameStatus({accessCode}) {
-    const [response] = await knex("games").where({access_code: accessCode}).select("game_end");
+async function gameStatus({accessCode, revealWinningNumber}) {
+    const [response] = await knex("games").where({access_code: accessCode}).select("game_end", "winning_number");
+    let winningNumber = (revealWinningNumber) ? response.winning_number : null;
     // console.log(response)
-    return (response) ? {status: true, message: response.game_end} : {status: false, message: "Invalid access code"}
+    return (response) ? {status: true, message: response.game_end, winningNumber} : {status: false, message: "Invalid access code"}
 }
 
 async function getPlayers(args) {
@@ -108,7 +109,7 @@ async function getPlayers(args) {
         isHost = ((typeof index == "number") && response.players.length > 0) ? response.players[index].host : null 
     }
     const inDB = (typeof index === "number") ? true : false
-    const gameStatusResponse = await gameStatus({accessCode});
+    const gameStatusResponse = await gameStatus({accessCode, revealWinningNumber: true});
     const playersArray = (revealSessionID) ? response.players : response.players.map(function(obj) {
         const currentPlayer = (obj.sessionID === sessionID) ? true : false
         const removeSessionID = {
@@ -119,7 +120,15 @@ async function getPlayers(args) {
             "currentPlayer": currentPlayer}
         return removeSessionID
         })
-    return response ? {status: true, message: playersArray, isHost, inDB, gameEnded: gameStatusResponse.message} : {status: false, message: "Invalid access code"}
+    return response ? {
+        status: true, 
+        message: playersArray, 
+        isHost, 
+        inDB, 
+        gameEnded: 
+        gameStatusResponse.message, 
+        winningNumber: gameStatusResponse.winningNumber
+    } : {status: false, message: "Invalid access code"}
 }
 
 async function addPlayer({playerData, accessCode}) {

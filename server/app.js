@@ -11,7 +11,6 @@ const path             = require("path");
 const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
-var clients            = [];
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -49,10 +48,13 @@ app.get("/api/:id/status", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.get("/api/:id/players", async (req, res) => {
+app.get("/api/:id/players", isHost, async (req, res) => {
     const accessCode = req.params.id
     const sessionID = req.session.id
     const response = await pgFunctions.getPlayers({accessCode, sessionID});
+    if(!req.isHost) {
+        response.winningNumber = null
+    }
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
@@ -80,7 +82,6 @@ app.post("/api/addPlayer", gameNotOver, checkDuplicateUsers, async (req, res) =>
     if(response.status) {
         res.status(200).json(response)
         await pgFunctions.sortPlayerRank({accessCode})
-        // console.log(req.body.socketId);
         io.to(accessCode).emit("databaseUpdated", true)
     } else {
         res.status(400).json(response)
@@ -202,6 +203,23 @@ function isAllowed(args) {
         }
         res.status(400).json({status: false, message: "Unauthorized"})
     }
+}
+
+async function isHost(req, res, next) {
+    const sessionID = req.session.id
+    const accessCode = req.params.id || req.body.accessCode
+    const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
+    req.isHost = false;
+    if(response.gameEnded === true) {
+        return next()
+    }
+    const playersArray = response.message
+    for(let i = 0; i < playersArray.length; i++) {
+        if((playersArray[i].sessionID === sessionID && playersArray[i].host === true)) {
+            req.isHost = true;
+        }
+    }
+    return next()
 }
 
 async function gameNotOver(req, res, next) {

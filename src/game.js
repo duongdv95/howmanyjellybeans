@@ -235,10 +235,9 @@ function Footer() {
     )
 }
 
-function subscribeToDatabase({setSocketID, accessCode, getUpdates}) {
+function subscribeToDatabase({accessCode, getUpdates}) {
     socket.on('connect', function() {
         socket.emit('subscribeToDatabase', accessCode);
-        setSocketID(socket.id)
         getUpdates()
     });
     socket.on('databaseUpdated', databaseUpdated => {
@@ -264,7 +263,7 @@ class Game extends React.Component {
             inDB: false,
             playerName: "",
             playerGuess: null,
-            socketID: "no socket ID yet"
+            correctGuess: ""
         }
     }
 
@@ -477,9 +476,6 @@ class Game extends React.Component {
     async componentDidMount() {
         this._isMounted = true
         this._isMounted && subscribeToDatabase({
-        setSocketID: (socketID) => {
-            this.setState({socketID})
-        }, 
         accessCode: this.state.accessCode, 
         getUpdates: async () => {
             let gameEnded = await this.getGameStatus()

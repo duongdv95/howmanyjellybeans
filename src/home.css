@@ -104,7 +104,7 @@ h2 {
 #player-table-ranked {
     display: grid;
     grid-template-columns: 1fr repeat(3, minmax(auto, 5em)) 1fr;
-    padding: 2em 0;
+    padding: 0.5em 0;
 }
 
 #player-table .item, #player-table-ranked .item {
