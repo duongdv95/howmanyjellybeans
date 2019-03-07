@@ -6,6 +6,7 @@ import Game from './game.js';
 import Instructions from './instructions.js';
 import Unauthorized from './unauthorized.js';
 import About from './about.js';
+import Invalid from "./invalid.js";
 
 class App extends React.Component {
     render() {
@@ -16,7 +17,8 @@ class App extends React.Component {
                     <Route exact path="/instructions/" component={Instructions} />
                     <Route exact path="/about/" component={About} />
                     <Route path="/unauthorized/" component={Unauthorized} />
-                    <Route path="/:id" component={Game} />
+                    <Route path="/invalidaccesscode/" component={Invalid} />
+                    <Route exact path="/:id" component={Game} />
                 </Switch>
             </BrowserRouter>
         );

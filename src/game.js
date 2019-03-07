@@ -292,6 +292,9 @@ class Game extends React.Component {
         if(response.data.message === "Unauthorized") {
             return this.props.history.push({pathname: "/unauthorized", state: {accessCode: this.state.accessCode}})
         } 
+        else if(response.data.message === "Invalid access code") {
+            return this.props.history.push("/invalidaccesscode")
+        }
         const data = response.data.message
         if(response.data.status === true){
             this._isMounted && this.setState({players: data, status: true, 
