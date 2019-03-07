@@ -3,10 +3,16 @@ import {Link} from "react-router-dom";
 
 class Unauthorized extends React.Component {
     render() {
+        let accessCode
+        try {
+            accessCode = this.props.location.state.accessCode
+        } catch (e) {
+            accessCode = "unauthorized"
+        }
         return (
             <div>
                 <h1>Unauthorized</h1>
-                <Link to={`/${this.props.location.state.accessCode}`}>Go Back</Link>
+                <Link to={`/${accessCode}`}>Go Back</Link>
             </div>
         )
     }
