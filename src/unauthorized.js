@@ -7,7 +7,7 @@ class Unauthorized extends React.Component {
         try {
             accessCode = this.props.location.state.accessCode
         } catch (e) {
-            accessCode = "unauthorized"
+            accessCode = ""
         }
         return (
             <div>
