@@ -23,19 +23,24 @@ var socket = io("http://localhost:5000");
 //    -Footer
 
 function GameInfo(props) {
+    let winningNumber = (<h3>Winning Number: {props.winningNumber}</h3>)
     const hostsArray = props.hostsArray
     const hostUsernamesArray = hostsArray.map(function(element) {
         let hostUserName = element.username
         if(element.currentPlayer === true) {
             hostUserName = hostUserName + " (you)"
+        } else {
+            winningNumber = null
         }
         return (
             hostUserName
         )
     })
+    
     const displayLoading = (props.status) ? (
         <div id="game-info">
             <h3>Access Code: {props.accessCode}</h3>
+            {winningNumber}
             <h3>Host: {hostUsernamesArray} </h3>
             {props.message}
         </div>
@@ -267,7 +272,7 @@ class Game extends React.Component {
             inDB: false,
             playerName: "",
             playerGuess: null,
-            correctGuess: ""
+            winningNumber: ""
         }
     }
 
@@ -303,7 +308,8 @@ class Game extends React.Component {
             this._isMounted && this.setState({players: data, status: true, 
                                               inDB: response.data.inDB,
                                               matchesSession: response.data.matchesSession,
-                                              gameEnded: response.data.gameEnded
+                                              gameEnded: response.data.gameEnded,
+                                              winningNumber: response.data.winningNumber
                                               })
             if(response.data.isHost === true) {
                 this._isMounted && this.setState({isHost: true})
@@ -508,6 +514,7 @@ class Game extends React.Component {
                 hostsArray = {hostsArray}
                 message = {message}
                 status = {this.state.status}
+                winningNumber = {this.state.winningNumber}
                 />
                 <LoadingIcon
                 status = {this.state.status}
