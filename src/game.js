@@ -25,8 +25,12 @@ var socket = io("http://localhost:5000");
 function GameInfo(props) {
     const hostsArray = props.hostsArray
     const hostUsernamesArray = hostsArray.map(function(element) {
+        let hostUserName = element.username
+        if(element.currentPlayer === true) {
+            hostUserName = hostUserName + " (you)"
+        }
         return (
-            element.username
+            hostUserName
         )
     })
     const displayLoading = (props.status) ? (
