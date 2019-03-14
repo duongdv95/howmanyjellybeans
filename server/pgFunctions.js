@@ -15,6 +15,25 @@ function getWinningNumber({accessCode}) {
     return knex("games").where({access_code: accessCode}).select("winning_number")
 }
 
+function createTiesArray(absDiffArray) {
+    let tieArray = []
+    for(let i=0;i<absDiffArray.length;i++) {
+        if(typeof tieArray[i] !== "boolean") {
+            tieArray[i] = false
+        }
+        let first = absDiffArray[i]
+        let second = absDiffArray[i + 1] || null
+        if(first === second) {
+            tieArray[i] = true
+            tieArray[i+1] = true
+        } 
+        else if (first !== second && i !== (absDiffArray.length - 1)) {
+            tieArray[i+1] = false
+        }
+    }
+    return tieArray
+}
+
 async function sortPlayerRank({accessCode}) {
     const [winningNumberResponse] = await getWinningNumber({accessCode});
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
@@ -26,14 +45,32 @@ async function sortPlayerRank({accessCode}) {
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
     })
+    let absDiffArray = []
+    playersArray.forEach(element=> {
+        absDiffArray.push(Math.abs(element.guess - winningNumber))
+    })
+    let tieArray = createTiesArray(absDiffArray);
+    let rank = 1
+    let trueCounter = 0
     const rankedPlayersArray = playersArray.map(function(obj, index) {
+        if(trueCounter === 2) {
+            rank ++;
+            trueCounter = 0;
+        }
+        if(tieArray[index] === true) {
+            trueCounter++
+        } else {
+            trueCounter = 2;
+        }
+
         var removeSessionID = {
             "username": obj.username, 
             "guess":obj.guess, 
             "host": obj.host,
             "sessionID": obj.sessionID,
             "id": obj.id,
-            "rank": index + 1}
+            "rank": rank,
+            "absoluteDifference": Math.abs(obj.guess - winningNumber)}
             return removeSessionID
     })
     const rankedPlayers = rankedPlayersArray.concat(hostsArray);
