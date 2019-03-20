@@ -29,7 +29,7 @@ function GameInfo(props) {
         let hostUserName = element.username
         if(element.currentPlayer === true) {
             hostUserName = hostUserName + " (you)"
-        } else {
+        } else if (winningNumber === null) {
             winningNumber = null
         }
         return (
@@ -502,7 +502,7 @@ class Game extends React.Component {
     }
 
     render() {
-        const message = (this.state.gameEnded) ? (<h3>Game over!</h3>) : (<div></div>)
+        const message = (this.state.gameEnded) ? (<h3>Game over!</h3>) : (null)
         const hostsArray = this.state.players.filter(function(element) {
             return element.host === true
         })

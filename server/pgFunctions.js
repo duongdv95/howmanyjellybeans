@@ -83,13 +83,14 @@ async function sortPlayerRank({accessCode}) {
 }
 
 async function getSortedPlayersRank({accessCode}) {
-    const [response] = await knex("games").where({access_code: accessCode}).select("ranked_players")
+    const [response] = await knex("games").where({access_code: accessCode}).select("ranked_players", "winning_number")
     if(!response) {
         return {status: false, message: "Invalid access code"}
     }
+    let winningNumber = (response.winning_number) ? response.winning_number : null;
     const gameStatusResponse = await gameStatus({accessCode});
     const rankedPlayers = response.ranked_players
-    return  {status: true, message: rankedPlayers, inDB: true, gameEnded: gameStatusResponse.message}
+    return  {status: true, message: rankedPlayers, inDB: true, gameEnded: gameStatusResponse.message, winningNumber}
 }
 
 async function createGame({playerData, winningNumber}) {
