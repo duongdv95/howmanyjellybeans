@@ -52,30 +52,40 @@ function CreateGameButton(props) {
 }
 
 function GameForm(props) {
+    var submitButton
+    const nameInput = (props.gameFormStage === 0) ? (
+        <input 
+        name="hostName"
+        type="text" 
+        placeholder="Enter your host name"
+        value={props.hostname}
+        onChange ={props.handleChange}
+        />) : null
+    const winningNumberInput = (props.gameFormStage === 1) ? (
+        <input
+        name="winningNumber"
+        type="text" 
+        placeholder="Enter the winning guess"
+        value={props.winningNumber}
+        onChange ={props.handleChange}
+        />
+    ) : null
+    if (props.gameFormStage === 0) {
+        submitButton = (<button> Submit name </button>)
+    }
+    if (props.gameFormStage === 1) {
+        submitButton = (<button> Submit guess </button>)
+    }
     return (
         <form 
         name="createGameClicked"
         onSubmit ={props.handleSubmit}
+        data-stage = {props.gameFormStage}
         >
+            {nameInput}
+            {winningNumberInput}
             <div>
-                Enter your name and winning guess to create
-            </div>
-            <input 
-            name="hostName"
-            type="text" 
-            placeholder="Enter your name"
-            value={props.hostname}
-            onChange ={props.handleChange}
-            />
-            <input
-            name="winningNumber"
-            type="text" 
-            placeholder="Enter the winning guess"
-            value={props.winningNumber}
-            onChange ={props.handleChange}
-            />
-            <div>
-                <button> Submit guess </button>
+                {submitButton}
             </div>
             <div>
                 <button type="button" onClick={() => props.onClick("backButton")}>
@@ -154,6 +164,7 @@ class Options extends React.Component {
             key = {"gameForm"}
             handleSubmit={this.props.handleSubmit}
             handleChange={this.props.handleChange}
+            gameFormStage={this.props.gameFormStage}
             onClick={(option) => this.props.onClick(option)}
             />
         );
@@ -218,7 +229,8 @@ class Home extends React.Component {
             accessCode: null,
             playerName: "",
             playerGuess: "",
-            response: ""
+            response: "",
+            gameFormStage: 0
         }
     }
 
@@ -257,7 +269,7 @@ class Home extends React.Component {
                 this.setState({display: ["joinGameForm", "backButton"]})
                 break
             case "backButton":
-                this.setState({display: ["createGame", "joinGame"]})
+                this.setState({display: ["createGame", "joinGame"], gameFormStage: 0})
                 break
             default: console.log("error")
         }
@@ -271,12 +283,16 @@ class Home extends React.Component {
         const accessCode = this.state.accessCode
         const playerName = this.state.playerName
         const playerGuess = this.state.playerGuess
+        const stage = parseInt(event.target.getAttribute("data-stage"));
         switch(eventType) {
             case "createGameClicked":
+                if(stage === 0 && hostName && hostName.length > 0) {
+                        this.setState({gameFormStage: 1})
+                    }
                 if(
                     winningNumber &&
-                    isNumerical(winningNumber) &&
-                    hostName && hostName.length > 0
+                    isNumerical(winningNumber)     
+                    && stage === 1
                 ) {
                     const response = await this.getAccessCode(hostName, winningNumber)
                     if (response.data.status === true) {
@@ -286,6 +302,7 @@ class Home extends React.Component {
                         this.setState({errorMessage: response.data.message})
                     }
                 }
+                
                 break
             case "joinGameClicked":
                 if(
@@ -354,6 +371,7 @@ class Home extends React.Component {
                 onClick = {(options) => this.handleClick(options)}
                 handleSubmit = {this.handleSubmit}
                 handleChange = {this.handleChange}
+                gameFormStage = {this.state.gameFormStage}
                 />
                 {errorMessage}
                 <Footer/>
