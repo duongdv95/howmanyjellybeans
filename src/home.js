@@ -53,15 +53,15 @@ function CreateGameButton(props) {
 
 function GameForm(props) {
     var submitButton
-    const nameInput = (props.gameFormStage === 0) ? (
+    var nameInput = (props.gameFormStage === 1) ? (
         <input 
         name="hostName"
         type="text" 
         placeholder="Enter your host name"
-        value={props.hostname}
+        value={props.hostName}
         onChange ={props.handleChange}
         />) : null
-    const winningNumberInput = (props.gameFormStage === 1) ? (
+    var winningNumberInput = (props.gameFormStage === 2) ? (
         <input
         name="winningNumber"
         type="text" 
@@ -70,10 +70,10 @@ function GameForm(props) {
         onChange ={props.handleChange}
         />
     ) : null
-    if (props.gameFormStage === 0) {
+    if (props.gameFormStage === 1) {
         submitButton = (<button> Submit name </button>)
     }
-    if (props.gameFormStage === 1) {
+    if (props.gameFormStage === 2) {
         submitButton = (<button> Submit guess </button>)
     }
     return (
@@ -97,11 +97,10 @@ function GameForm(props) {
 }
 
 function JoinGameForm(props) {
-    return (
-        <form
-        name="joinGameClicked"
-        onSubmit ={props.handleSubmit}
-        >
+    var submitButton
+    const accessCode = (props.gameFormStage === 1) ? (
+        <React.Fragment>
+            <h3>Access Code:</h3>
             <input 
             className="input"
             name="accessCode"
@@ -109,25 +108,53 @@ function JoinGameForm(props) {
             placeholder="Enter an access code"
             value={props.accessCode}
             onChange ={props.handleChange}
-            />     
-            <input 
+            />
+        </React.Fragment>
+        ) : null
+    const playerName = (props.gameFormStage === 2) ? (
+    <React.Fragment>
+        <h3>Name:</h3>
+        <input 
             className="input"
             name="playerName"
             type="text" 
             placeholder="Enter your name"
-            value={props.hostname}
+            value={props.playerName}
             onChange ={props.handleChange}
             />
-            <input 
-            className="input"
-            name="playerGuess"
-            type="text" 
-            placeholder="Enter your guess"
-            value={props.playerGuess}
-            onChange ={props.handleChange}
-            />
+    </React.Fragment>) : null
+    const playerGuess = (props.gameFormStage === 3) ? (
+    <React.Fragment>
+        <h3>Guess:</h3>
+        <input 
+        className="input"
+        name="playerGuess"
+        type="text" 
+        placeholder="Enter your guess"
+        value={props.playerGuess}
+        onChange ={props.handleChange}
+        />
+    </React.Fragment>) : null
+    if (props.gameFormStage === 1) {
+        submitButton = (<button>Submit</button>)
+    }
+    if (props.gameFormStage === 2) {
+        submitButton = (<button>Submit</button>)
+    }
+    if (props.gameFormStage === 3) {
+        submitButton = (<button>Submit</button>)
+    }
+    return (
+        <form
+        name="joinGameClicked"
+        onSubmit ={props.handleSubmit}
+        data-stage = {props.gameFormStage}
+        >
+            {accessCode}
+            {playerName}
+            {playerGuess}
             <div>
-                <button>Join Game</button>
+                {submitButton}
             </div>
             <div>
                 <button type="button" onClick={() => props.onClick("backButton")}>
@@ -165,6 +192,8 @@ class Options extends React.Component {
             handleSubmit={this.props.handleSubmit}
             handleChange={this.props.handleChange}
             gameFormStage={this.props.gameFormStage}
+            hostName={this.props.hostName}
+            winningNumber={this.props.winningNumber}
             onClick={(option) => this.props.onClick(option)}
             />
         );
@@ -185,7 +214,11 @@ class Options extends React.Component {
             key = {"joinGameForm"}
             handleSubmit={this.props.handleSubmit}
             handleChange={this.props.handleChange}
+            gameFormStage={this.props.gameFormStage}
             onClick={(option) => this.props.onClick(option)}
+            playerName = {this.props.playerName}
+            accessCode = {this.props.accessCode}
+            playerGuess = {this.props.playerGuess}
             />
         );
     }
@@ -225,8 +258,8 @@ class Home extends React.Component {
             display: ["createGame", "joinGame"],
             hostName: "",
             playername: "",
-            winningNumber: null,
-            accessCode: null,
+            winningNumber: "",
+            accessCode: "",
             playerName: "",
             playerGuess: "",
             response: "",
@@ -263,13 +296,18 @@ class Home extends React.Component {
     handleClick(option) {
         switch(option) {
             case "createGame":
-                this.setState({display: ["gameForm", "backButton"]})
+                this.setState({display: ["gameForm", "backButton"], gameFormStage: 1})
                 break
             case "joinGame":
-                this.setState({display: ["joinGameForm", "backButton"]})
+                this.setState({display: ["joinGameForm", "backButton"], gameFormStage: 1})
                 break
             case "backButton":
-                this.setState({display: ["createGame", "joinGame"], gameFormStage: 0})
+                let gameFormStage = this.state.gameFormStage - 1
+                if(gameFormStage === 0) {
+                    this.setState({display: ["createGame", "joinGame"], gameFormStage})
+                } else {
+                    this.setState({gameFormStage})
+                }
                 break
             default: console.log("error")
         }
@@ -286,13 +324,13 @@ class Home extends React.Component {
         const stage = parseInt(event.target.getAttribute("data-stage"));
         switch(eventType) {
             case "createGameClicked":
-                if(stage === 0 && hostName && hostName.length > 0) {
-                        this.setState({gameFormStage: 1})
+                if(stage === 1 && hostName && hostName.length > 0) {
+                        this.setState({gameFormStage: 2})
                     }
                 if(
-                    winningNumber &&
+                    winningNumber && winningNumber > 0 &&
                     isNumerical(winningNumber)     
-                    && stage === 1
+                    && stage === 2
                 ) {
                     const response = await this.getAccessCode(hostName, winningNumber)
                     if (response.data.status === true) {
@@ -305,11 +343,13 @@ class Home extends React.Component {
                 
                 break
             case "joinGameClicked":
-                if(
-                    accessCode &&
-                    isNumerical(playerGuess) &&
-                    playerName && playerName.length > 0
-                ) {
+                if(stage === 1 && accessCode) {
+                    this.setState({gameFormStage: 2})
+                }
+                if(stage === 2 && playerName && playerName.length > 0) {
+                    this.setState({gameFormStage: 3})
+                }
+                if(stage === 3 && isNumerical(playerGuess)) {
                     const response = await this.joinGame(accessCode, playerName, playerGuess)
                     return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({response: response.data})
                 }
@@ -322,21 +362,23 @@ class Home extends React.Component {
         const eventType = event.target.name
         switch(eventType) {
             case "hostName":
+            console.log("host name triggered")
             this.setState({hostName: event.target.value})
             break
 
             case "winningNumber":
+            console.log("winning number triggered")
             this.setState({winningNumber: event.target.value})
             break
 
             case "playerName":
             this.setState({playerName: event.target.value})
             break
-
+            
             case "accessCode":
             this.setState({accessCode: event.target.value})
             break
-
+            
             case "playerGuess":
             this.setState({playerGuess: event.target.value})
             break
@@ -372,6 +414,11 @@ class Home extends React.Component {
                 handleSubmit = {this.handleSubmit}
                 handleChange = {this.handleChange}
                 gameFormStage = {this.state.gameFormStage}
+                hostName = {this.state.hostName}
+                winningNumber = {this.state.winningNumber}
+                playerName = {this.state.playerName}
+                accessCode = {this.state.accessCode}
+                playerGuess = {this.state.playerGuess}
                 />
                 {errorMessage}
                 <Footer/>

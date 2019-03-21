@@ -235,6 +235,9 @@ async function checkDuplicateUsers(req, res, next) {
     const accessCode = req.params.id || req.body.accessCode
     const sessionID = req.session.id
     const response = await pgFunctions.getPlayers({accessCode, revealSessionID: true})
+    if(!response.status) {
+        return next();
+    }
     const playersArray = response.message
     let duplicateFound = false;
     playersArray.forEach((element) => {
