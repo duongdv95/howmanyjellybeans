@@ -36,7 +36,7 @@ h2 {
 }
 
 #game-options, #home-options {
-    padding: 0.5em;
+    padding: 0.5em 0;
 }
 
 #home-options div div, form div, #game-options div {
@@ -78,6 +78,12 @@ h2 {
     border: 1px solid #0099cc;
 }
 
+#home-options form h3 {
+    text-align: left;
+    margin: 0;
+    font-size: 0.8em;
+    padding-left: 6px;
+}
 
 #player-table {
     display: grid;
@@ -175,10 +181,20 @@ h2 {
 @media (min-width: 600px) {
     .grid {
         display: grid;
-        grid-template-columns: 1fr repeat(2, minmax(auto, 25em)) 1fr;
+        grid-template-columns: 1fr repeat(2, minmax(auto, 15em)) 1fr;
     }
 
-    .content-wrap {
+    /* .content-wrap {
+        grid-column: 2 / 4;
+    } */
+    #home-options .content-wrap {
+        grid-column: 2 / 4;
+    }
+
+    #home-header .content-wrap {
+        grid-column: 2 / 4;
+    }
+    #home-footer .content-wrap {
         grid-column: 2 / 4;
     }
   }

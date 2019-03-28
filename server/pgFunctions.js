@@ -171,7 +171,7 @@ async function getPlayers(args) {
 
 async function addPlayer({playerData, accessCode}) {
     const guess = playerData.guess
-    if(playerData.username.length === 0 || playerData.guess.length === 0 || isNaN(guess)) {
+    if(playerData.username.length === 0 || playerData.guess.length === 0 || isNaN(guess) || guess < 0) {
         return {status: false, message: "Invalid username or guess"}
     }
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
