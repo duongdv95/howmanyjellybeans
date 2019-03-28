@@ -29,7 +29,7 @@ function GameInfo(props) {
         let hostUserName = element.username
         if(element.currentPlayer === true) {
             hostUserName = hostUserName + " (you)"
-        } else if (winningNumber === null) {
+        } else if (props.winningNumber === null) {
             winningNumber = null
         }
         return (

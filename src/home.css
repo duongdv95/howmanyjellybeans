@@ -78,12 +78,7 @@ h2 {
     border: 1px solid #0099cc;
 }
 
-#home-options form h3 {
-    text-align: left;
-    margin: 0;
-    font-size: 0.8em;
-    padding-left: 6px;
-}
+
 
 #player-table {
     display: grid;

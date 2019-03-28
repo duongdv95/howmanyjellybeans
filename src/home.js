@@ -100,7 +100,6 @@ function JoinGameForm(props) {
     var submitButton
     const accessCode = (props.gameFormStage === 1) ? (
         <React.Fragment>
-            <h3>Access Code:</h3>
             <input 
             className="input"
             name="accessCode"
@@ -113,7 +112,6 @@ function JoinGameForm(props) {
         ) : null
     const playerName = (props.gameFormStage === 2) ? (
     <React.Fragment>
-        <h3>Name:</h3>
         <input 
             className="input"
             name="playerName"
@@ -125,7 +123,6 @@ function JoinGameForm(props) {
     </React.Fragment>) : null
     const playerGuess = (props.gameFormStage === 3) ? (
     <React.Fragment>
-        <h3>Guess:</h3>
         <input 
         className="input"
         name="playerGuess"
@@ -136,13 +133,13 @@ function JoinGameForm(props) {
         />
     </React.Fragment>) : null
     if (props.gameFormStage === 1) {
-        submitButton = (<button>Submit</button>)
+        submitButton = (<button>Submit code</button>)
     }
     if (props.gameFormStage === 2) {
-        submitButton = (<button>Submit</button>)
+        submitButton = (<button>Submit name</button>)
     }
     if (props.gameFormStage === 3) {
-        submitButton = (<button>Submit</button>)
+        submitButton = (<button>Submit guess</button>)
     }
     return (
         <form
@@ -362,12 +359,10 @@ class Home extends React.Component {
         const eventType = event.target.name
         switch(eventType) {
             case "hostName":
-            console.log("host name triggered")
             this.setState({hostName: event.target.value})
             break
 
             case "winningNumber":
-            console.log("winning number triggered")
             this.setState({winningNumber: event.target.value})
             break
 
@@ -392,7 +387,7 @@ class Home extends React.Component {
     render() {
         const response = this.state.response
         let errorMessage = (<div></div>)
-        if(response.message ==="Game already ended by host") {
+        if(response.message ==="Game does not exist") {
             errorMessage = (
                 <div>{response.message}.</div>
             )
