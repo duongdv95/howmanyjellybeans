@@ -2,7 +2,7 @@ import React from "react";
 import {Link} from "react-router-dom";
 import './home.css'
 import axios from "axios"
-
+import Footer from './footer.js';
 // Components Hierarchy
 // -HOME
 //    -IMG
@@ -21,21 +21,6 @@ function Header() {
                     How many jellybeans?
                 </h2>
                 <div className="bg-image"></div>
-            </div>
-        </div>
-    )
-}
-
-function Footer() {
-    return (
-        <div id="home-footer" className="footer grid">
-            <div className="content-wrap">
-                <div>
-                    <Link to={"/instructions"}>Organize an event</Link>
-                </div>
-                <div>
-                    <Link to={"/about"}>About</Link>    
-                </div>
             </div>
         </div>
     )

@@ -1,8 +1,7 @@
 import React from "react";
 import axios from "axios"
-import {Link} from "react-router-dom";
 import io from "socket.io-client";
-
+import Footer from './footer.js';
 var socket = io("http://localhost:5000");
 
 
@@ -227,21 +226,6 @@ class PlayerTable extends React.Component {
             </div>
         )
     }
-}
-
-function Footer() {
-    return (
-        <div id="home-footer" className="grid">
-            <div className="content-wrap">
-                <div>
-                    <Link to={"/instructions"}>Organize an event</Link>
-                </div>
-                <div>
-                    <Link to={"/about"}>About</Link>    
-                </div>
-            </div>
-        </div>
-    )
 }
 
 function subscribeToDatabase({accessCode, getUpdates}) {

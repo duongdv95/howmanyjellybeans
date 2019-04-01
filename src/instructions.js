@@ -1,5 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import Footer from './footer.js';
 
 function HowToPlay() {
     return (
@@ -57,12 +58,10 @@ function HowToPlay() {
                             Hosting for work or family events is exactly the same as fundraising. The collected 
                             money can all go to the winner or however you decide.
                         </p>
-                        <p>
-                            Return <Link to={"/"} target="_blank">Home</Link>
-                        </p>
                     </div>
                 </div>
             </div>
+            <Footer/>
         </React.Fragment>
     )
 }
