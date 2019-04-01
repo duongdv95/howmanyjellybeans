@@ -228,7 +228,7 @@ async function gameNotOver(req, res, next) {
     if(response.message === false) {
         return next()
     }
-    res.status(400).json({status: false, message: "Game already ended by host"})
+    res.status(400).json({status: false, message: "Game does not exist"})
 }
 
 async function checkDuplicateUsers(req, res, next) {

@@ -4,6 +4,10 @@ body {
     text-align: center;
 }
 
+#home, #game, #instructions, #about {
+    padding-top: 1em;
+}
+
 #home-footer {
     padding: 0.5em 0;
 }
@@ -12,7 +16,7 @@ body {
     padding: 2px;
 }
 
-#home-footer a {
+#home-footer a, #instructions a {
     color: gray;
     text-decoration: none;
     font-weight: 700;
@@ -24,7 +28,7 @@ body {
     cursor: pointer;
 }
 div.bg-image {
-    content:url(https://images.unsplash.com/photo-1501755792080-cd51e405462c?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60);
+    content:url(https://i.imgur.com/NwbgeLG.jpg);
     width: 80%;
     margin: 0px auto;
 }
@@ -173,10 +177,31 @@ h2 {
     padding: 0.1em;
 }
 
+#instructions .content-wrap div {
+    text-align: left;
+}
+
+#instructions .content-wrap div h2 {
+    padding: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+#instructions .content-wrap div p, ul {
+    padding: 0.5em 0;
+    margin: 0;
+    line-height: 1.5;
+    color: #666666;
+}
+
+#instructions .content-wrap div, ul {
+    padding: 1em;
+}
+
 @media (min-width: 600px) {
     .grid {
         display: grid;
-        grid-template-columns: 1fr repeat(2, minmax(auto, 15em)) 1fr;
+        grid-template-columns: 1fr repeat(2, minmax(auto, 20em)) 1fr;
     }
 
     /* .content-wrap {
@@ -190,6 +215,10 @@ h2 {
         grid-column: 2 / 4;
     }
     #home-footer .content-wrap {
+        grid-column: 2 / 4;
+    }
+
+    #instructions .content-wrap {
         grid-column: 2 / 4;
     }
   }
