@@ -169,6 +169,28 @@ async function getPlayers(args) {
     } : {status: false, message: "Invalid access code"}
 }
 
+async function approvePlayer(args) {
+    const accessCode = args.accessCode
+    const playerID = args.playerID
+    const playerApproved = args.playerApproved
+    if(typeof(playerApproved) !== "boolean") {
+        return {status: false, message: "Error. Please enter true or false"}
+    }
+    var playersResponse = await getPlayers({accessCode, revealSessionID: true})
+    if(!playersResponse.status) {return playersResponse}
+    var playersArray = playersResponse.message
+    var index = getPlayerIndex({playersArray, playerID})
+    if(index == null) return {status: false, message: "Player not found."}
+    playersArray[index].approved = playerApproved
+    const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+    if (updatePlayerResponse) {
+        return {status: true, message: playersArray}
+    } else {
+        return {status: false, message: "Error. Player was not approved."}
+    }
+    
+}
+
 async function addPlayer({playerData, accessCode}) {
     const guess = playerData.guess
     if(playerData.username.length === 0 || playerData.guess.length === 0 || isNaN(guess) || guess < 0) {
@@ -179,6 +201,7 @@ async function addPlayer({playerData, accessCode}) {
     var playersArray = playersResponse.message
     if (uniqueGuess({guess, playersArray})) {
         playerData.id = shortid.generate();
+        playerData.approved = false;
         playersArray.push(playerData)
         const addPlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
         if (addPlayerResponse) {
@@ -297,5 +320,6 @@ module.exports = {
     endGame,
     gameStatus,
     getGames,
-    getSortedPlayersRank
+    getSortedPlayersRank,
+    approvePlayer
 }

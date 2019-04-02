@@ -123,6 +123,19 @@ app.put("/api/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     }
 })
 
+app.put("/api/approvePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
+    const accessCode = req.body.accessCode
+    const playerID = req.body.playerID
+    const playerApproved = req.body.approved
+    const response = await pgFunctions.approvePlayer({accessCode, playerID, playerApproved})
+    if(response.status) {
+        res.status(200).json(response)
+        io.to(accessCode).emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
+})
+
 app.put("/api/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const sessionID = req.session.id
     const accessCode = req.body.accessCode
