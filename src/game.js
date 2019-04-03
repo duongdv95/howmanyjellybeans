@@ -118,6 +118,20 @@ function DeletePlayerButton(onClick, playerID, isHost) {
     ) : (null)
 }
 
+function ApprovePlayerCheckBox({handleChange, playerID, isHost, approved}) {
+    let playerApprovedMessage = (approved) ? "Yes":"Pending"
+    let checked = approved
+    return (isHost) ? (
+        <input 
+        name="approvePlayerCheckBox"
+        type="checkbox"
+        checked={checked}
+        data-id={playerID} 
+        onChange ={handleChange}
+        ></input>
+    ) : (playerApprovedMessage)
+}
+
 class Options extends React.Component {
     renderJoinGameForm() {
         return (
@@ -201,6 +215,7 @@ class PlayerTable extends React.Component {
                         <div className="nested-grid">
                             <div className="item">Player</div>
                             <div className="item">Guess</div>
+                            <div className="item">Approved</div>
                             {playerMap}
                         </div>
                     </div>
@@ -308,6 +323,7 @@ class Game extends React.Component {
         const players = this.state.players
         const gameEnded = this.state.gameEnded
         const onClick = (option) => this.handleClick(option)
+        const handleChange = (option) => this.handleChange(option)
         const isHost = this.state.isHost
         const playersWithoutHost = players.filter(function(element) {
             return element.host === false
@@ -325,6 +341,13 @@ class Game extends React.Component {
                         </div>
                         <div className="item">
                             {element.guess}
+                        </div>
+                        <div className="item">
+                            {ApprovePlayerCheckBox({
+                                handleChange, 
+                                playerID: element.id, 
+                                isHost, approved: 
+                                element.approved})}
                         </div>
                     </React.Fragment>
                 ) : (
@@ -406,9 +429,38 @@ class Game extends React.Component {
             case "playerGuess":
             this.setState({playerGuess: event.target.value})
             break
+           
+            case "approvePlayerCheckBox":
+            const playerID = event.target.dataset.id
+            var players = this.state.players
+            let index
+            for(let i = 0; i < players.length; i++) {
+                if(players[i].id === playerID) {
+                    index = i
+                    break
+                }
+            }
+            players[index].approved = !players[index].approved
+            this.setState({players})
+            this.approvePlayer(this.state.accessCode, playerID, players[index].approved)
+            break
 
             default: 
                 console.log("error")
+        }
+    }
+
+    async approvePlayer(accessCode, playerID, playerApproved) {
+        try {
+            const response = await axios.put("/api/approvePlayer", 
+            {    
+                "accessCode": accessCode,
+                "playerID": playerID,
+                "approved": playerApproved
+            })
+            return response
+        } catch (error) {
+            return error.response
         }
     }
 

@@ -155,7 +155,8 @@ async function getPlayers(args) {
             "guess":obj.guess, 
             "host": obj.host,
             "id": obj.id,
-            "currentPlayer": currentPlayer}
+            "currentPlayer": currentPlayer,
+            "approved": obj.approved}
         return removeSessionID
         })
     return response ? {
@@ -177,6 +178,7 @@ async function approvePlayer(args) {
         return {status: false, message: "Error. Please enter true or false"}
     }
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
+    console.log(playersResponse)
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     var index = getPlayerIndex({playersArray, playerID})
@@ -188,7 +190,6 @@ async function approvePlayer(args) {
     } else {
         return {status: false, message: "Error. Player was not approved."}
     }
-    
 }
 
 async function addPlayer({playerData, accessCode}) {
