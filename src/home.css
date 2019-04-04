@@ -82,11 +82,9 @@ h2 {
     border: 1px solid #0099cc;
 }
 
-
-
 #player-table {
     display: grid;
-    grid-template-columns: 1fr repeat(3, minmax(auto, 5em)) 1fr;
+    grid-template-columns: 1fr repeat(3, minmax(auto, 7em)) 1fr;
     padding: 0.5em 0;
 }
 
@@ -132,7 +130,7 @@ h2 {
 }
 #player-table .nested-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr minmax(auto, 6em);
 }
 #player-table-ranked .nested-grid {
     display: grid;
@@ -157,6 +155,11 @@ h2 {
 
 #player-table .item:nth-child(6n+3) {
     background: #f2f2f2;
+    justify-content: center;
+}
+
+#player-table .item:nth-child(6n+6) {
+    justify-content: center;
 }
 
 #player-table-ranked .item:nth-child(6n+1) {
@@ -201,6 +204,57 @@ h2 {
 #instructions .content-wrap div, ul {
     padding: 1em;
 }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
 
 @media (min-width: 600px) {
     .grid {

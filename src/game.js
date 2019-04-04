@@ -122,13 +122,16 @@ function ApprovePlayerCheckBox({handleChange, playerID, isHost, approved}) {
     let playerApprovedMessage = (approved) ? "Yes":"Pending"
     let checked = approved
     return (isHost) ? (
-        <input 
-        name="approvePlayerCheckBox"
-        type="checkbox"
-        checked={checked}
-        data-id={playerID} 
-        onChange ={handleChange}
-        ></input>
+        <label className="switch">
+            <input 
+            name="approvePlayerCheckBox"
+            type="checkbox"
+            checked={checked}
+            data-id={playerID} 
+            onChange ={handleChange}
+            ></input>
+            <span className="slider"></span>
+        </label>
     ) : (playerApprovedMessage)
 }
 

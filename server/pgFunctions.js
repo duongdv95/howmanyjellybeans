@@ -178,7 +178,6 @@ async function approvePlayer(args) {
         return {status: false, message: "Error. Please enter true or false"}
     }
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
-    console.log(playersResponse)
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
     var index = getPlayerIndex({playersArray, playerID})
