@@ -73,7 +73,7 @@ app.post("/api/createGame", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.post("/api/addPlayer", checkDuplicateUsers, gameNotOver, async (req, res) => {
+app.post("/api/addPlayer", gameNotOver, async (req, res) => {
     const username = req.body.username
     const guess = req.body.guess
     const accessCode = req.body.accessCode

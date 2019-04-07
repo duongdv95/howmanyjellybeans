@@ -274,7 +274,9 @@ class Game extends React.Component {
             inDB: false,
             playerName: "",
             playerGuess: null,
-            winningNumber: ""
+            winningNumber: "",
+            awaitingApproval: false,
+            message: null
         }
     }
 
@@ -422,7 +424,7 @@ class Game extends React.Component {
         }
     }
 
-    handleChange(event) {
+    async handleChange(event) {
         const eventType = event.target.name
         switch(eventType) {
             case "playerName":
@@ -434,18 +436,11 @@ class Game extends React.Component {
             break
            
             case "approvePlayerCheckBox":
-            const playerID = event.target.dataset.id
-            var players = this.state.players
-            let index
-            for(let i = 0; i < players.length; i++) {
-                if(players[i].id === playerID) {
-                    index = i
-                    break
+            if(!this.state.awaitingApproval) {
+                this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Verifying approval...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+                const playerID = event.target.dataset.id
+                this.setState(this.updateApprovedPlayers(playerID, this.state.accessCode))
                 }
-            }
-            players[index].approved = !players[index].approved
-            this.setState({players})
-            this.approvePlayer(this.state.accessCode, playerID, players[index].approved)
             break
 
             default: 
@@ -453,6 +448,25 @@ class Game extends React.Component {
         }
     }
 
+    updateApprovedPlayers(playerID, accessCode) {
+        return async (previousState) => {
+            console.table(previousState.players)
+            let index
+            for(let i = 0; i < previousState.players.length; i++) {
+                if(previousState.players[i].id === playerID) {
+                    index = i
+                    break
+                }
+            }
+            previousState.players[index].approved = !previousState.players[index].approved
+            
+        
+            const response = await this.approvePlayer(accessCode, playerID, previousState.players[index].approved)
+            return (response.data.status) ? {players: previousState.players} : {}
+        
+        }
+    }
+    
     async approvePlayer(accessCode, playerID, playerApproved) {
         try {
             const response = await axios.put("/api/approvePlayer", 
@@ -461,6 +475,9 @@ class Game extends React.Component {
                 "playerID": playerID,
                 "approved": playerApproved
             })
+            if(response.data.status) {
+                this.setState({awaitingApproval: false, message: (<h3 className="loading">Complete!</h3>)})
+            }
             return response
         } catch (error) {
             return error.response
@@ -528,7 +545,7 @@ class Game extends React.Component {
         accessCode: this.state.accessCode, 
         getUpdates: async () => {
             let gameEnded = await this.getGameStatus()
-            if(gameEnded) {this.setState({status: false})}
+            if(gameEnded) {this.setState({status: false, message: (<h3>Game over!</h3>)})}
             await this.loadData(gameEnded)
         }}
         )
@@ -541,7 +558,7 @@ class Game extends React.Component {
     }
 
     render() {
-        const message = (this.state.gameEnded) ? (<h3>Game over!</h3>) : (null)
+        const message = this.state.message
         const hostsArray = this.state.players.filter(function(element) {
             return element.host === true
         })
@@ -585,6 +602,7 @@ export default Game
 function isNumerical(guess) {
     return (isNaN(guess)) ? false : true
 }
+
 
 // package.json scripts
 // "start": "react-scripts start"
