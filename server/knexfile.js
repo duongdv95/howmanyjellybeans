@@ -10,7 +10,8 @@ try {
       port: process.env.DBPORT,
       user: process.env.DBUSER,
       password: process.env.DBPASSWORD,
-      database: process.env.DBDATABASE
+      database: process.env.DBDATABASE,
+      ssl: true
     }
   }
 }
