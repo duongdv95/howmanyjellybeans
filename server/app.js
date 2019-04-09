@@ -12,7 +12,7 @@ const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
 
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', function (socket) {
     // console.log(`Socket ${socket.id} connected.`)
@@ -265,7 +265,7 @@ async function checkDuplicateUsers(req, res, next) {
 }
 
 // 3000 for deployment, and 5000 for dev environment
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 server.listen(port, function() {
     console.log(`Server listening at port ${port}`)
 })

@@ -23,7 +23,7 @@
     "dev-start": "react-scripts start",
     "start": "npm run both",
     "dev-test": "concurrently \"npm run dev-start\" \"nodemon server/app.js\"",
-    "both": "concurrently \"npm run build\" \"nodemon server/app.js\"",
+    "both": "concurrently \"npm run build\" \"node server/app.js\"",
     "build": "react-scripts build"
   },
   "eslintConfig": {
