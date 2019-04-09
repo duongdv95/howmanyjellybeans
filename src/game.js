@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
-var socket = io("https://jellybean-app.herokuapp.comgit st");
+var socket = io("https://jellybean-app.herokuapp.com");
 // change to "http://localhost:5000" for development
 
 // Components Hierarchy
