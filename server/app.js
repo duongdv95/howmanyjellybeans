@@ -267,7 +267,8 @@ async function checkDuplicateUsers(req, res, next) {
 }
 
 // 3000 for deployment, and 5000 for dev environment
-const port = process.env.PORT || 3000;
+// 80 for lightsail
+const port = process.env.PORT || 80;
 server.listen(port, function() {
     console.log(`Server listening at port ${port}`)
 })
