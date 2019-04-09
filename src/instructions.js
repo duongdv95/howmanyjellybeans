@@ -27,7 +27,7 @@ function HowToPlay() {
                                 </li>
                         </ul>
                         <p>
-                            If you feel like 
+                            *It's recommended to keep a paper copy in case the website goes down.
                         </p>
                         <p>
                             You will want to count exactly how many jellybeans that will go in the jar 
