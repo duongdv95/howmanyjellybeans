@@ -12,6 +12,7 @@ const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
 
+// Uncomment for development
 // app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', function (socket) {
@@ -25,7 +26,7 @@ io.on('connection', function (socket) {
     })
  });
  
-
+// Comment out for development
 app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
 app.use(session({
@@ -162,6 +163,7 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
+// Uncomment for development
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname + "/../build/index.html"));
 })

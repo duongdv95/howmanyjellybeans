@@ -2,8 +2,8 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
-var socket = io("http://localhost:5000");
-
+var socket = io("http://localhost:3000");
+// change to 5000 for development
 
 // Components Hierarchy
 // -Game
