@@ -26,7 +26,7 @@ io.on('connection', function (socket) {
  });
  
 
-// app.use(express.static(path.join(__dirname, '/../build')));
+app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -162,9 +162,9 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-// app.get("*", (req, res) => {
-//     res.sendFile(path.join(__dirname + "/../build/index.html"));
-// })
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname + "/../build/index.html"));
+})
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
         username,
@@ -264,7 +264,10 @@ async function checkDuplicateUsers(req, res, next) {
     }
 }
 
+// 3000 for deployment, and 5000 for dev environment
 const port = process.env.PORT || 5000;
 server.listen(port, function() {
     console.log(`Server listening at port ${port}`)
 })
+
+//Add ,"proxy": "http://localhost:5000" to package.json during dev environment

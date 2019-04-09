@@ -450,7 +450,7 @@ class Game extends React.Component {
 
     updateApprovedPlayers(playerID, accessCode) {
         return async (previousState) => {
-            console.table(previousState.players)
+            // console.table(previousState.players)
             let index
             for(let i = 0; i < previousState.players.length; i++) {
                 if(previousState.players[i].id === playerID) {
