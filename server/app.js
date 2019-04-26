@@ -15,9 +15,11 @@ const env              = process.env.NODE_ENV || "development"
 
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
+    console.log(__dirname)
 } 
 if(env === "production") {
-    app.use(express.static(path.join(__dirname, '/../build'), {dotfiles: "allow"}));
+    app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
+    app.use(express.static(path.join(__dirname, '/../build')));
 }
 
 io.on('connection', function (socket) {
