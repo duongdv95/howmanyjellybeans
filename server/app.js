@@ -22,6 +22,7 @@ hskey  = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/fullchain.
 hscert = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
 hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
 
+console.log(hskey, hscert, hschain)
 var serverOptions = {
     key: hskey,
     cert: hscert,
