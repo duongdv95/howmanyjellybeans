@@ -18,17 +18,14 @@ const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hskey, hscert, hschain
 
-hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/fullchain.pem', "utf-8")
 hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem', "utf-8")
 hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem', "utf-8")
-console.log("HSKEY")
-console.log(hskey)
+
 console.log("HSCERT")
 console.log(hscert)
 console.log("HSCHAIN")
 console.log(hschain)
 var serverOptions = {
-    key: hskey,
     cert: hscert,
     ca: [hschain]
 }
