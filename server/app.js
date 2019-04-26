@@ -16,18 +16,18 @@ const io               = socket(server)
 const fs               = require("fs")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
-var hskey, hscert, hschain
+// var hskey, hscert, hschain
 
-hskey  = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/fullchain.pem')
-hscert = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
-hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
+// hskey  = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/fullchain.pem')
+// hscert = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
+// hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
 
-console.log(hskey, hscert, hschain)
-var serverOptions = {
-    key: hskey,
-    cert: hscert,
-    ca: hschain
-}
+// console.log(hskey, hscert, hschain)
+// var serverOptions = {
+//     key: hskey,
+//     cert: hscert,
+//     ca: hschain
+// }
 
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
