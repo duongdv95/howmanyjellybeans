@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
-var socket = io("%PUBLIC_URL%");
+var socket = io("http://howmanyjellybeans.com");
 // change to "http://localhost:5000" for development
 
 // Components Hierarchy
