@@ -9,6 +9,7 @@
     "connect-session-knex": "^1.4.0",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
+    "http-proxy-middleware": "^0.19.1",
     "knex": "^0.16.3",
     "pg": "^7.7.1",
     "react": "^16.7.0",
@@ -21,10 +22,9 @@
   },
   "scripts": {
     "dev-start": "react-scripts start",
-    "start": "npm run both",
-    "dev-test": "concurrently \"npm run dev-start\" \"nodemon server/app.js\"",
-    "both": "concurrently \"npm run build\" \"node server/app.js\"",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "development": "concurrently \"npm run dev-start\" \"nodemon server/app.js\"",
+    "production": "concurrently \"npm run build\" \"node server/app.js\""
   },
   "eslintConfig": {
     "extends": "react-app"

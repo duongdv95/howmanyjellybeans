@@ -11,9 +11,15 @@ const path             = require("path");
 const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
+const env              = process.env.NODE_ENV || "development"
 
-// Uncomment for development
-// app.use(express.static(path.join(__dirname, 'public')));
+if(env === "development") {
+    app.use(express.static(path.join(__dirname, 'public')));
+    console.log("development mode")
+} else {
+    app.use(express.static(path.join(__dirname, '/../build')));
+    console.log("production mode")
+}
 
 io.on('connection', function (socket) {
     // console.log(`Socket ${socket.id} connected.`)
@@ -26,8 +32,6 @@ io.on('connection', function (socket) {
     })
  });
  
-// Comment out for development
-app.use(express.static(path.join(__dirname, '/../build')));
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -163,10 +167,12 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-// Uncomment for development
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname + "/../build/index.html"));
-})
+if(env === "production") {
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname + "/../build/index.html"));
+    })
+
+}
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
         username,
@@ -266,9 +272,8 @@ async function checkDuplicateUsers(req, res, next) {
     }
 }
 
-// 3000 for deployment, and 5000 for dev environment
-// 80 for lightsail
-const port = process.env.PORT || 80;
+// 3000 for heroku deployment, and 5000 for dev environment
+const port = process.env.PORT || 5000;
 server.listen(port, function() {
     console.log(`Server listening at port ${port}`)
 })
