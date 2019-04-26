@@ -3,6 +3,7 @@ import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
 var URL    = process.env.PRODUCTIONSITE || "http://localhost:5000"
+console.log(URL)
 var socket = io(URL);
 
 // Components Hierarchy
