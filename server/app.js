@@ -16,18 +16,17 @@ const io               = socket(server)
 const fs               = require("fs")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
-// var hskey, hscert, hschain
+var hskey, hscert, hschain
 
-// hskey  = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/fullchain.pem')
-// hscert = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
-// hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
+hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/fullchain.pem')
+hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
+hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
 
-// console.log(hskey, hscert, hschain)
-// var serverOptions = {
-//     key: hskey,
-//     cert: hscert,
-//     ca: hschain
-// }
+var serverOptions = {
+    key: hskey,
+    cert: hscert,
+    ca: hschain
+}
 
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
@@ -291,15 +290,15 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-server.listen(port, function() {
-    console.log(`Server listening at port ${port}`)
-})
+// server.listen(port, function() {
+//     console.log(`Server listening at port ${port}`)
+// })
 
-// http.createServer(app).listen(port, () => {
-//     console.log('Listening...')
-//   })
+http.createServer(app).listen(port, () => {
+    console.log('Listening...')
+  })
 
-// https.createServer(serverOptions, app).listen(443, () => {
-//     console.log('SSL Listening...')
-//   })
+https.createServer(serverOptions, app).listen(443, () => {
+    console.log('SSL Listening...')
+  })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
