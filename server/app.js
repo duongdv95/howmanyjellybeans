@@ -1,4 +1,6 @@
 const express          = require("express");
+const https            = require("https");
+const http             = require("http")
 const app              = express();
 const bodyParser       = require("body-parser");
 const pgFunctions      = require("./pgFunctions");
@@ -11,7 +13,9 @@ const path             = require("path");
 const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const io               = socket(server)
+const fs               = require("fs")
 const env              = process.env.NODE_ENV || "development"
+const port             = process.env.PORT || 5000;
 
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
@@ -274,9 +278,16 @@ async function checkDuplicateUsers(req, res, next) {
 }
 
 // 3000 for heroku deployment, and 5000 for dev environment
-const port = process.env.PORT || 5000;
+
 server.listen(port, function() {
     console.log(`Server listening at port ${port}`)
 })
 
+https.createServer({
+    key: fs.readFileSync('/etc/letsencrypt/path/to/key.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/path/to/cert.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/path/to/chain.pem')
+  }, app).listen(443, () => {
+    console.log('SSL Listening...')
+  })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
