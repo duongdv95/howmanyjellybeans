@@ -296,7 +296,7 @@ server.listen(port, function() {
 //     console.log('Listening...')
 //   })
 
-https.createServer(serverOptions, server).listen(443, () => {
+https.createServer(serverOptions, app).listen(443, () => {
     console.log('SSL Listening...')
   })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
