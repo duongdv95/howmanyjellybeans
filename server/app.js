@@ -17,7 +17,7 @@ if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
 } 
 if(env === "production") {
-    app.use(express.static(path.join(__dirname, '/../build')));
+    app.use(express.static(path.join(__dirname, '/../build'), {dotfiles: "allow"}));
 }
 
 io.on('connection', function (socket) {
