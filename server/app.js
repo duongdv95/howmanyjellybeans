@@ -15,10 +15,9 @@ const env              = process.env.NODE_ENV || "development"
 
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
-    console.log("development mode")
-} else {
+} 
+if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
-    console.log("production mode")
 }
 
 io.on('connection', function (socket) {
