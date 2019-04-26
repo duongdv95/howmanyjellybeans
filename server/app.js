@@ -25,7 +25,7 @@ hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.p
 var serverOptions = {
     key: hskey,
     cert: hscert,
-    ca: [hschain]
+    ca: hschain
 }
 
 if(env === "development") {
