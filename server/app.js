@@ -18,7 +18,7 @@ const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hscert, hschain, hskey
 
-hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/key.pem')
+hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
 hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
 hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
 
