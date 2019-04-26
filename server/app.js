@@ -31,7 +31,7 @@ if(env === "development") {
     console.log(__dirname)
 } 
 if(env === "production") {
-    // app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
+    app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
     app.use(express.static(path.join(__dirname, '/../build')));
 }
 
