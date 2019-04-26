@@ -2,7 +2,8 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
-var URL    = process.env.PRODUCTIONSITE || "http://localhost:5000"
+// var URL    = process.env.PRODUCTIONSITE || "http://localhost:5000"
+var URL    = "http://howmanyjellybeans.com"
 var socket = io(URL);
 
 // Components Hierarchy
