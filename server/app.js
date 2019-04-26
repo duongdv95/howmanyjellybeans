@@ -18,8 +18,8 @@ const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hscert, hschain
 
-hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem', "utf-8")
-hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem', "utf-8")
+hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
+hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
 
 var serverOptions = {
     cert: hscert,
