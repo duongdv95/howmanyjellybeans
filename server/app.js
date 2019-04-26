@@ -279,9 +279,9 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-server.listen(port, function() {
-    console.log(`Server listening at port ${port}`)
-})
+// server.listen(port, function() {
+//     console.log(`Server listening at port ${port}`)
+// })
 
 https.createServer({
     key: fs.readFileSync('/etc/letsencrypt/path/to/key.pem'),
