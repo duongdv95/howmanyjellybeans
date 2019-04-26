@@ -2,9 +2,8 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
-var socket = io("http://howmanyjellybeans.com");
+var socket = io(process.env.PRODUCTIONSITE);
 // change to "http://localhost:5000" for development
-
 // Components Hierarchy
 // -Game
 //    -Title
