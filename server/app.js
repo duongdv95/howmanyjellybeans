@@ -295,7 +295,11 @@ async function checkDuplicateUsers(req, res, next) {
 //     console.log(`Server listening at port ${port}`)
 // })
 
-https.createServer(serverOptions, server).listen(443, () => {
+http.createServer(app).listen(port, () => {
+    console.log('Listening...')
+  })
+
+https.createServer(serverOptions, app).listen(443, () => {
     console.log('SSL Listening...')
   })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
