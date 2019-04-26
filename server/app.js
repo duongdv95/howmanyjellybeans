@@ -291,15 +291,15 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-// server.listen(port, function() {
-//     console.log(`Server listening at port ${port}`)
-// })
+server.listen(port, function() {
+    console.log(`Server listening at port ${port}`)
+})
 
-http.createServer(app).listen(port, () => {
-    console.log('Listening...')
-  })
+// http.createServer(app).listen(port, () => {
+//     console.log('Listening...')
+//   })
 
-https.createServer(serverOptions, app).listen(443, () => {
-    console.log('SSL Listening...')
-  })
+// https.createServer(serverOptions, app).listen(443, () => {
+//     console.log('SSL Listening...')
+//   })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
