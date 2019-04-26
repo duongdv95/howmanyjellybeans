@@ -287,7 +287,7 @@ https.createServer({
     key: fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/fullchain.pem'),
     cert: fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem'),
     ca: fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
-  }, app).listen(443, () => {
+  }, server).listen(443, () => {
     console.log('SSL Listening...')
   })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
