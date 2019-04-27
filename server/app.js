@@ -45,15 +45,15 @@ if(env === "production") {
         console.log('SSL Listening...')
     })
     io = socket.listen(server)
-    app.enable("trust proxy")
+    app.set("trust proxy")
     app.use(function(req, res, next) {
         if (req.secure) {
         // request was via https, so do no special handling
-        next();
+        return next();
         } else {
         // request was via http, so redirect to https
         res.redirect('https://' + req.headers.host + req.url);
-    }
+        }
     })
 }
 
