@@ -7,6 +7,7 @@
     "body-parser": "^1.18.3",
     "concurrently": "^4.1.0",
     "connect-session-knex": "^1.4.0",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "http-proxy-middleware": "^0.19.1",
