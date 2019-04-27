@@ -35,6 +35,13 @@ if(env === "development") {
 if(env === "production") {
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
     app.use(express.static(path.join(__dirname, '/../build')));
+    app.use(function(req, res, next) {
+        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+            res.redirect('https://' + req.get('Host') + req.url);
+        }
+        else
+            next();
+    });
 }
 
 io.on('connection', function (socket) {
