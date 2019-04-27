@@ -46,16 +46,14 @@ if(env === "production") {
     })
     io = socket.listen(server)
     app.use(function(req, res, next) {
-        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
-            console.log(req.secure)
-            console.log(req.get('X-Forwarded-Proto'))
-            console.log(req.get('Host'))
-            console.log(req.url)
-            res.redirect('https://' + req.headers.host + req.url);
-        }
-        else
-            next();
-    });
+        if (req.secure) {
+        // request was via https, so do no special handling
+        next();
+        } else {
+        // request was via http, so redirect to https
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+    })
 }
 
 io.on('connection', function (socket) {
