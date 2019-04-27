@@ -10,52 +10,52 @@ const KnexSessionStore = require("connect-session-knex")(session);
 const knexfile         = require("./knexfile.js");
 const knex             = require("knex")(knexfile);
 const path             = require("path");
-// const server           = require("http").createServer(app);
 const socket           = require("socket.io");
 const fs               = require("fs")
 const cors             = require("cors")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
-var hscert, hschain, hskey
-app.use(cors())
-
-hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
-hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
-hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
-
-var serverOptions = {
-    key: hskey,
-    cert: hscert,
-    ca: hschain
-}
-
-var server = https.createServer(serverOptions, app).listen(443, () => {
-    console.log('SSL Listening...')
-})
-
-const io = socket.listen(server)
-
+const proxy            = require("http-proxy-middleware")
+var hscert, hschain, hskey, io, server
 
 if(env === "development") {
+    module.exports = function(app) {
+        app.use(proxy('/api', { target: 'http://localhost:5000/' }));
+      };
     app.use(express.static(path.join(__dirname, 'public')));
+    server = require("http").createServer(app);
     server.listen(port, function() {
         console.log(`Server listening at port ${port}`)
     })
+    io = socket.listen(server)
 } 
 if(env === "production") {
-    app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
+    app.use(cors())
+    app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
-    // app.use(function(req, res, next) {
-    //     if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
-    //         console.log(req.secure)
-    //         console.log(req.get('X-Forwarded-Proto'))
-    //         console.log(req.get('Host'))
-    //         console.log(req.url)
-    //         res.redirect('https://' + req.get('Host') + req.url);
-    //     }
-    //     else
-    //         next();
-    // });
+    hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
+    hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
+    hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
+    var serverOptions = {
+        key: hskey,
+        cert: hscert,
+        ca: hschain
+    }
+    server = https.createServer(serverOptions, app).listen(443, () => {
+        console.log('SSL Listening...')
+    })
+    io = socket.listen(server)
+    app.use(function(req, res, next) {
+        if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+            console.log(req.secure)
+            console.log(req.get('X-Forwarded-Proto'))
+            console.log(req.get('Host'))
+            console.log(req.url)
+            res.redirect('https://' + req.headers.host + req.url);
+        }
+        else
+            next();
+    });
 }
 
 io.on('connection', function (socket) {
