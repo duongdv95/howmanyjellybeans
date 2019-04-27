@@ -3,7 +3,7 @@ import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
 var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
-var socket = io(URL);
+var socket = io(URL).listen(443);
 console.log(URL)
 // Components Hierarchy
 // -Game
