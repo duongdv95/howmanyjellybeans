@@ -35,10 +35,13 @@ if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
 
-    app.get("*", function(req, res) {
-        res.redirect('https://' + req.headers.host + req.url);
-    });
-
+    function requireHTTPS(req, res, next) {
+        if (!req.secure) {
+            return res.redirect('https://' + req.hostname + req.url);
+        }
+        next();
+    }
+    app.use(requireHTTPS);
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -82,7 +85,7 @@ app.use(session({
     secret: "merp",
     resave: false,
     saveUninitialized: true,
-    cookie: {maxAge: null}
+    cookie: {maxAge: null, secure: true}
 }));
 
 app.get("/api/:id/status", async (req, res) => {
