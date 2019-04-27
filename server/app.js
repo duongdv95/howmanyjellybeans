@@ -33,7 +33,7 @@ if(env === "production") {
     app.use(cors())
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
-    app.enable("trust proxy")
+    app.set("trust proxy", 1)
 
     function requireHTTPS(req, res, next) {
         if (!req.secure) {
