@@ -1,6 +1,6 @@
 const express          = require("express");
 const https            = require("https");
-// const http             = require("http")
+const http             = require("http")
 const app              = express();
 const bodyParser       = require("body-parser");
 const pgFunctions      = require("./pgFunctions");
@@ -35,6 +35,16 @@ if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
 
+    app.use(function(req, res, next) {
+        console.log(req.secure)
+        console.log(req.headers.host)
+        console.log(req.url)
+        if(!req.secure){
+          res.redirect("https://" + req.headers.host + req.url);
+        } 
+        next()
+    })
+    
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -43,7 +53,12 @@ if(env === "production") {
         cert: hscert,
         ca: hschain
     }
-
+    // app.listen(80, () => {
+    //     console.log("connected on 80..")
+    // })
+    http.createServer(app).listen(80, () => {
+        console.log('Listening on 80...')
+      })
     server = https.createServer(serverOptions, app).listen(443, () => {
         console.log('SSL Listening...')
     })
@@ -75,16 +90,6 @@ app.use(session({
     saveUninitialized: true,
     cookie: {maxAge: null}
 }));
-
-app.use(function(req, res, next) {
-    console.log(req.secure)
-    console.log(req.headers.host)
-    console.log(req.url)
-    if(!req.secure){
-      res.redirect("https://" + req.headers.host + req.url);
-    } 
-    next()
-})
 
 app.get("/api/:id/status", async (req, res) => {
     const accessCode = req.params.id
@@ -313,9 +318,7 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-app.listen(80, () => {
-    console.log("connected on 80..")
-})
+
 
 // http.createServer(app).listen(port, () => {
 //     console.log('Listening...')
