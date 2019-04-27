@@ -12,12 +12,13 @@ const knex             = require("knex")(knexfile);
 const path             = require("path");
 const server           = require("http").createServer(app);
 const socket           = require("socket.io");
-const io               = socket(server)
+
 const fs               = require("fs")
 const cors             = require("cors")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hscert, hschain, hskey
+
 
 app.use(cors())
 hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
@@ -30,6 +31,14 @@ var serverOptions = {
     ca: hschain
 }
 
+server.listen(port, function() {
+    console.log(`Server listening at port ${port}`)
+})
+
+var server2 = https.createServer(serverOptions, app).listen(443, () => {
+    console.log('SSL Listening...')
+})
+const io               = socket(server).listen(server2)
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
     console.log(__dirname)
@@ -303,15 +312,10 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-server.listen(port, function() {
-    console.log(`Server listening at port ${port}`)
-})
+
 
 // http.createServer(app).listen(port, () => {
 //     console.log('Listening...')
 //   })
 
-https.createServer(serverOptions, app).listen(443, () => {
-    console.log('SSL Listening...')
-  })
 //Add ,"proxy": "http://localhost:5000" to package.json during dev environment
