@@ -37,6 +37,10 @@ if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
     app.use(function(req, res, next) {
         if((!req.secure) && (req.get('X-Forwarded-Proto') !== 'https')) {
+            console.log(req.secure)
+            console.log(req.get('X-Forwarded-Proto'))
+            console.log(req.get('Host'))
+            console.log(req.url)
             res.redirect('https://' + req.get('Host') + req.url);
         }
         else
