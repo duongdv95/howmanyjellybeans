@@ -34,17 +34,13 @@ if(env === "production") {
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
-    app.use(function(req, res, next) {
-        console.log("https:", req.secure)
+    app.all('*', function(req, res, next){
+        console.log('req start: ', req.secure, req.hostname, req.url, app.get('port'));
         if (req.secure) {
-            // request was via https, so do no special handling
             return next();
-        } else {
-        console.log("http:", req.secure)
-        // request was via http, so redirect to https
-        res.redirect('https://' + req.headers.host + req.url);
         }
-    })
+        res.redirect('https://'+req.hostname + ':' + app.get('secPort') + req.url);
+    });
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
