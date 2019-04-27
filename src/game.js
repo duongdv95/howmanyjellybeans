@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import Footer from './footer.js';
 var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
 var socket = io(URL);
-
+console.log(URL)
 // Components Hierarchy
 // -Game
 //    -Title
