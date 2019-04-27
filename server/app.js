@@ -53,7 +53,7 @@ if(env === "production") {
     // app.listen(80, () => {
     //     console.log("connected on 80..")
     // })
-    http.createServer(app).listen(80, () => {
+    app.listen(80, () => {
         console.log('Listening on 80...')
       })
     server = https.createServer(serverOptions, app).listen(443, () => {
