@@ -30,18 +30,14 @@ if(env === "development") {
     io = socket.listen(server)
 } 
 if(env === "production") {
-    // app.use(cors())
+    app.use(cors())
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
 
-    app.use(function(req, res, next) {
-        if ((req.get('X-Forwarded-Proto') !== 'https')) {
-            res.redirect('https://' + req.get('Host') + req.url);
-        } else
-            next();
-        }
-    );
+    app.get("*", function(req, res) {
+        res.redirect('https://' + req.headers.host + req.url);
+    });
 
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
