@@ -35,7 +35,9 @@ if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
     app.use(function(req, res, next) {
-        console.log(req)
+        console.log(req.secure)
+        console.log(req.headers.host)
+        console.log(req.url)
         if(!req.secure){
           res.redirect("https://" + req.headers.host + req.url);
         } else {
