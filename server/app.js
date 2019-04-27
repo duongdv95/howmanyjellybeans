@@ -43,9 +43,7 @@ if(env === "production") {
         cert: hscert,
         ca: hschain
     }
-    app.listen(80, () => {
-        console.log("connected on 80..")
-    })
+
     server = https.createServer(serverOptions, app).listen(443, () => {
         console.log('SSL Listening...')
     })
@@ -315,7 +313,9 @@ async function checkDuplicateUsers(req, res, next) {
 
 // 3000 for heroku deployment, and 5000 for dev environment
 
-
+app.listen(80, () => {
+    console.log("connected on 80..")
+})
 
 // http.createServer(app).listen(port, () => {
 //     console.log('Listening...')
