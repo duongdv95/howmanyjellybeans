@@ -1,6 +1,6 @@
 const express          = require("express");
 const https            = require("https");
-const http             = require("http")
+// const http             = require("http")
 const app              = express();
 const bodyParser       = require("body-parser");
 const pgFunctions      = require("./pgFunctions");
@@ -10,17 +10,15 @@ const KnexSessionStore = require("connect-session-knex")(session);
 const knexfile         = require("./knexfile.js");
 const knex             = require("knex")(knexfile);
 const path             = require("path");
-const server           = require("http").createServer(app);
+// const server           = require("http").createServer(app);
 const socket           = require("socket.io");
-
 const fs               = require("fs")
 const cors             = require("cors")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hscert, hschain, hskey
-
-
 app.use(cors())
+
 hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
 hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
 hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -31,17 +29,18 @@ var serverOptions = {
     ca: hschain
 }
 
-// server.listen(port, function() {
-//     console.log(`Server listening at port ${port}`)
-// })
-
-var server2 = https.createServer(serverOptions, app).listen(443, () => {
+var server = https.createServer(serverOptions, app).listen(443, () => {
     console.log('SSL Listening...')
 })
-const io               = socket(server).listen(server2)
+
+const io = socket(socket).listen(server)
+
+
 if(env === "development") {
     app.use(express.static(path.join(__dirname, 'public')));
-    console.log(__dirname)
+    server.listen(port, function() {
+        console.log(`Server listening at port ${port}`)
+    })
 } 
 if(env === "production") {
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' } ))
