@@ -62,16 +62,7 @@ io.on('connection', function (socket) {
         socket.join(accessCode)
     })
  });
- app.use(function(req, res, next) {
-    console.log(req.secure)
-    console.log(req.headers.host)
-    console.log(req.url)
-    if(!req.secure){
-      res.redirect("https://" + req.headers.host + req.url);
-    } else {
-        next()
-    }
-  })
+
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -86,6 +77,16 @@ app.use(session({
     saveUninitialized: true,
     cookie: {maxAge: null}
 }));
+
+app.use(function(req, res, next) {
+    console.log(req.secure)
+    console.log(req.headers.host)
+    console.log(req.url)
+    if(!req.secure){
+      res.redirect("https://" + req.headers.host + req.url);
+    } 
+    next()
+})
 
 app.get("/api/:id/status", async (req, res) => {
     const accessCode = req.params.id
