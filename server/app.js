@@ -34,16 +34,7 @@ if(env === "production") {
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
     app.enable("trust proxy")
-    app.use(function(req, res, next) {
-        console.log(req.secure)
-        console.log(req.headers.host)
-        console.log(req.url)
-        if(!req.secure){
-          res.redirect("https://" + req.headers.host + req.url);
-        } else {
-            next()
-        }
-      })
+
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -71,7 +62,16 @@ io.on('connection', function (socket) {
         socket.join(accessCode)
     })
  });
- 
+ app.use(function(req, res, next) {
+    console.log(req.secure)
+    console.log(req.headers.host)
+    console.log(req.url)
+    if(!req.secure){
+      res.redirect("https://" + req.headers.host + req.url);
+    } else {
+        next()
+    }
+  })
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
