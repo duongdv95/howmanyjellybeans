@@ -36,15 +36,13 @@ if(env === "production") {
     app.enable("trust proxy")
 
     app.use(function(req, res, next) {
-        console.log(req.secure)
-        console.log(req.headers.host)
-        console.log(req.url)
-        if(!req.secure){
-          res.redirect("https://" + req.headers.host + req.url);
-        } 
-        next()
-    })
-    
+        if ((req.get('X-Forwarded-Proto') !== 'https')) {
+            res.redirect('https://' + req.get('Host') + req.url);
+        } else
+            next();
+        }
+    );
+
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
