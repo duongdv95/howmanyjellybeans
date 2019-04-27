@@ -31,9 +31,9 @@ var serverOptions = {
     ca: hschain
 }
 
-server.listen(port, function() {
-    console.log(`Server listening at port ${port}`)
-})
+// server.listen(port, function() {
+//     console.log(`Server listening at port ${port}`)
+// })
 
 var server2 = https.createServer(serverOptions, app).listen(443, () => {
     console.log('SSL Listening...')
