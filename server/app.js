@@ -33,7 +33,7 @@ var server = https.createServer(serverOptions, app).listen(443, () => {
     console.log('SSL Listening...')
 })
 
-const io = socket(socket).listen(server)
+const io = socket.listen(server)
 
 
 if(env === "development") {
