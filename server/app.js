@@ -53,6 +53,8 @@ if(env === "production") {
         cert: hscert,
         ca: hschain
     }
+    app.listen(80, () => {
+    })
     server = https.createServer(serverOptions, app).listen(443, () => {
         console.log('SSL Listening...')
     })
