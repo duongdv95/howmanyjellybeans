@@ -31,11 +31,16 @@ if(env === "development") {
 } 
 if(env === "production") {
     app.use(cors())
+    function requireHTTPS(req, res, next) {
+        if (!req.secure) {
+            return res.redirect('https://' + req.hostname + req.url);
+        }
+        next();
+    }
+    app.use(requireHTTPS);
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
     app.set("trust proxy", 1)
-
-
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -203,17 +208,7 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
 })
 
 if(env === "production") {
-    // function requireHTTPS(req, res, next) {
-    //     if (!req.secure) {
-    //         return res.redirect('https://' + req.hostname + req.url);
-    //     }
-    //     next();
-    // }
-    // app.use(requireHTTPS);
     app.get("*", (req, res) => {
-        if (!req.secure) {
-            res.redirect('https://' + req.hostname + req.url);
-        }
         res.sendFile(path.join(__dirname + "/../build/index.html"));
     })
 }
