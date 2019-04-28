@@ -35,13 +35,7 @@ if(env === "production") {
     app.use(express.static(path.join(__dirname, '/../build')));
     app.set("trust proxy", 1)
 
-    function requireHTTPS(req, res, next) {
-        if (!req.secure) {
-            return res.redirect('https://' + req.hostname + req.url);
-        }
-        next();
-    }
-    app.use(requireHTTPS);
+
     hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
     hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
     hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
@@ -209,11 +203,21 @@ app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req,
 })
 
 if(env === "production") {
+    // function requireHTTPS(req, res, next) {
+    //     if (!req.secure) {
+    //         return res.redirect('https://' + req.hostname + req.url);
+    //     }
+    //     next();
+    // }
+    // app.use(requireHTTPS);
     app.get("*", (req, res) => {
+        if (!req.secure) {
+            return res.redirect('https://' + req.hostname + req.url);
+        }
         res.sendFile(path.join(__dirname + "/../build/index.html"));
     })
-
 }
+
 var generatePlayerObj = function playerData({username, guess, host, sessionID}) {
     return {
         username,
