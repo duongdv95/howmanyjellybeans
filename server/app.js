@@ -212,7 +212,7 @@ if(env === "production") {
     // app.use(requireHTTPS);
     app.get("*", (req, res) => {
         if (!req.secure) {
-            return res.redirect('https://' + req.hostname + req.url);
+            res.redirect('https://' + req.hostname + req.url);
         }
         res.sendFile(path.join(__dirname + "/../build/index.html"));
     })
