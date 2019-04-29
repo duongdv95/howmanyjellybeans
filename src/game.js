@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import Footer from './footer.js';
 var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
 var socket = io(URL);
+
 // Components Hierarchy
 // -Game
 //    -Title
@@ -548,8 +549,12 @@ class Game extends React.Component {
             await this.loadData(gameEnded)
         }}
         )
-        
+        //dry up code
+        let gameEnded = await this.getGameStatus()
+        if(gameEnded) {this.setState({status: false, message: (<h3>Game over!</h3>)})}
+        await this.loadData(gameEnded)
     }
+
 
     componentWillUnmount() {
         this._isMounted = false

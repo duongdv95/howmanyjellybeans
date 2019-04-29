@@ -11,7 +11,8 @@ import Invalid from "./invalid.js";
 class App extends React.Component {
     render() {
         return (
-            <BrowserRouter forceRefresh={true}>
+            //forceRefresh={true}
+            <BrowserRouter>
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/instructions/" component={Instructions} />

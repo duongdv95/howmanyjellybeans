@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import './home.css'
 import axios from "axios"
 import Footer from './footer.js';
+
 // Components Hierarchy
 // -HOME
 //    -IMG
@@ -384,7 +385,6 @@ class Home extends React.Component {
                 </div>
             )
         }
-        
         return (
             <div id ="home" className="container">
                 <Header/>
