@@ -15,13 +15,10 @@ const fs               = require("fs")
 const cors             = require("cors")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
-const proxy            = require("http-proxy-middleware")
-var hscert, hschain, hskey, io, server
+var hscert, hschain, hskey, io, server, cookie
 
 if(env === "development") {
-    module.exports = function(app) {
-        app.use(proxy('/api', { target: 'http://localhost:5000/' }));
-      };
+    cookie = {maxAge: null}
     app.use(express.static(path.join(__dirname, 'public')));
     server = require("http").createServer(app);
     server.listen(port, function() {
@@ -30,6 +27,7 @@ if(env === "development") {
     io = socket.listen(server)
 } 
 if(env === "production") {
+    cookie = {maxAge: null, secure: true}
     app.use(cors())
     function requireHTTPS(req, res, next) {
         if (!req.secure) {
@@ -84,7 +82,7 @@ app.use(session({
     secret: "merp",
     resave: false,
     saveUninitialized: true,
-    cookie: {maxAge: null, secure: true}
+    cookie
 }));
 
 app.get("/api/:id/status", async (req, res) => {
