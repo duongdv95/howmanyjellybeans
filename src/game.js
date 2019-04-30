@@ -539,20 +539,21 @@ class Game extends React.Component {
         }
     }
     
+    async getUpdates() {
+        let gameEnded = await this.getGameStatus()
+        if(gameEnded) {this.setState({status: false, message: (<h3>Game over!</h3>)})}
+        await this.loadData(gameEnded)
+    }
+
     async componentDidMount() {
         this._isMounted = true
         this._isMounted && subscribeToDatabase({
         accessCode: this.state.accessCode, 
         getUpdates: async () => {
-            let gameEnded = await this.getGameStatus()
-            if(gameEnded) {this.setState({status: false, message: (<h3>Game over!</h3>)})}
-            await this.loadData(gameEnded)
-        }}
-        )
-        //dry up code
-        let gameEnded = await this.getGameStatus()
-        if(gameEnded) {this.setState({status: false, message: (<h3>Game over!</h3>)})}
-        await this.loadData(gameEnded)
+            console.log("triggered")
+            this.getUpdates()
+        }})
+        this.getUpdates()
     }
 
 
