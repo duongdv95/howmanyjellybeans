@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
+import debounce from "lodash.debounce";
 var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
 var socket = io(URL);
 
@@ -246,7 +247,9 @@ class PlayerTable extends React.Component {
     }
 }
 
-function subscribeToDatabase({accessCode, getUpdates}) {
+
+
+function subscribeToDatabase({accessCode, getUpdates, lastUpdated}) {
     socket.on('connect', function() {
         socket.emit('subscribeToDatabase', accessCode);
         getUpdates()
@@ -254,7 +257,9 @@ function subscribeToDatabase({accessCode, getUpdates}) {
     socket.on('databaseUpdated', databaseUpdated => {
         // console.log(`Database Updated: ${databaseUpdated}`);
         if(databaseUpdated) {
-            getUpdates()
+            lastUpdated()
+            // getUpdates()
+            debounce(getUpdates, 3000)()
         }
     });
 }
@@ -276,8 +281,15 @@ class Game extends React.Component {
             playerGuess: null,
             winningNumber: "",
             awaitingApproval: false,
-            message: null
+            message: null,
+            lastUpdated: this.lastUpdated()
         }
+    }
+
+    lastUpdated() {
+        var currentDate = new Date()
+        currentDate.setMilliseconds(0)
+        return currentDate
     }
 
     async getGameStatus() {
@@ -308,13 +320,17 @@ class Game extends React.Component {
             return this.props.history.push("/invalidaccesscode")
         }
         const data = response.data.message
+        var updateState = () => {
+            this.setState({players: data, status: true, 
+                inDB: response.data.inDB,
+                matchesSession: response.data.matchesSession,
+                gameEnded: response.data.gameEnded,
+                winningNumber: response.data.winningNumber
+            })
+            this.setState({awaitingApproval: false})
+        }
         if(response.data.status === true){
-            this._isMounted && this.setState({players: data, status: true, 
-                                              inDB: response.data.inDB,
-                                              matchesSession: response.data.matchesSession,
-                                              gameEnded: response.data.gameEnded,
-                                              winningNumber: response.data.winningNumber
-                                              })
+            this._isMounted && updateState()
             if(response.data.isHost === true) {
                 this._isMounted && this.setState({isHost: true})
             }
@@ -476,7 +492,7 @@ class Game extends React.Component {
                 "approved": playerApproved
             })
             if(response.data.status) {
-                this.setState({awaitingApproval: false, message: (<h3 className="loading">Complete!</h3>)})
+                this.setState({message: (<h3 className="loading">Complete!</h3>)})
             }
             return response
         } catch (error) {
@@ -550,9 +566,12 @@ class Game extends React.Component {
         this._isMounted && subscribeToDatabase({
         accessCode: this.state.accessCode, 
         getUpdates: async () => {
-            console.log("triggered")
             this.getUpdates()
-        }})
+        },
+        lastUpdated: () => {
+            this.setState({lastUpdated: this.lastUpdated()})
+        }
+    })
         this.getUpdates()
     }
 
