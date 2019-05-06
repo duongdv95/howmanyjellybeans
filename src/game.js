@@ -247,9 +247,11 @@ class PlayerTable extends React.Component {
     }
 }
 
-
-
 function subscribeToDatabase({accessCode, getUpdates, lastUpdated}) {
+    var debounceUpdate = debounce(getUpdates, 2000, {
+        "leading": false,
+        "trailing": true
+    })
     socket.on('connect', function() {
         socket.emit('subscribeToDatabase', accessCode);
         getUpdates()
@@ -258,8 +260,7 @@ function subscribeToDatabase({accessCode, getUpdates, lastUpdated}) {
         // console.log(`Database Updated: ${databaseUpdated}`);
         if(databaseUpdated) {
             lastUpdated()
-            // getUpdates()
-            debounce(getUpdates, 3000)()
+            debounceUpdate()
         }
     });
 }
@@ -328,6 +329,7 @@ class Game extends React.Component {
                 winningNumber: response.data.winningNumber
             })
             this.setState({awaitingApproval: false})
+            this.setState({message: (<h3 className="loading">Ready!</h3>)})
         }
         if(response.data.status === true){
             this._isMounted && updateState()
@@ -339,7 +341,7 @@ class Game extends React.Component {
             this._isMounted && this.setState({accessCode: data})
         }  
     }
-
+    
     playerMap() { 
         const players = this.state.players
         const gameEnded = this.state.gameEnded
@@ -389,7 +391,7 @@ class Game extends React.Component {
             return (null)
         }
     }
-
+    
     handleClick(e) {
         const buttonElement = e.target
         const option = buttonElement.name
@@ -402,9 +404,18 @@ class Game extends React.Component {
         if(option === "deletePlayerButton") {
             const playerID = buttonElement.dataset.id
             this.deletePlayer(this.state.accessCode, playerID)
+            this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+            // debounce(() => {
+            //     const playerID = buttonElement.dataset.id
+            //     this.deletePlayer(this.state.accessCode, playerID)
+            //     this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+            // }, 2000, {
+            //     "leading": true,
+            //     "trailing": false
+            // })()
         }
     }
-
+    
     async handleSubmit(event) {
         event.preventDefault()
         const eventType = event.target.name
@@ -413,57 +424,57 @@ class Game extends React.Component {
         const playerGuess = this.state.playerGuess
         switch(eventType) {
             case "joinGameClicked":
-                if(
-                    accessCode &&
-                    isNumerical(playerGuess) &&
-                    playerName && playerName.length > 0
+            if(
+                accessCode &&
+                isNumerical(playerGuess) &&
+                playerName && playerName.length > 0
                 ) {
                     const response = await this.joinGame(accessCode, playerName, playerGuess)
                     return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({response: response.data})
                 }
                 break
-            default: console.log("error")
+                default: console.log("error")
+            }
         }
-    }
-
-    async joinGame(accessCode, playerName, playerGuess) {
-        try {
-            const response = await axios.post("/api/addplayer", 
-            {    
-                "username": playerName,
-                "guess": playerGuess,
-                "accessCode": accessCode
-            })
+        
+        async joinGame(accessCode, playerName, playerGuess) {
+            try {
+                const response = await axios.post("/api/addplayer", 
+                {    
+                    "username": playerName,
+                    "guess": playerGuess,
+                    "accessCode": accessCode
+                })
             return response
         } catch (error) {
             return error.response
         }
     }
-
+    
     async handleChange(event) {
         const eventType = event.target.name
         switch(eventType) {
             case "playerName":
             this.setState({playerName: event.target.value})
             break
-
+            
             case "playerGuess":
             this.setState({playerGuess: event.target.value})
             break
-           
+            
             case "approvePlayerCheckBox":
             if(!this.state.awaitingApproval) {
-                this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Verifying approval...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+                this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Updating players...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
                 const playerID = event.target.dataset.id
                 this.setState(this.updateApprovedPlayers(playerID, this.state.accessCode))
-                }
+            }
             break
-
+            
             default: 
-                console.log("error")
+            console.log("error")
         }
     }
-
+    
     updateApprovedPlayers(playerID, accessCode) {
         return async (previousState) => {
             // console.table(previousState.players)
@@ -476,10 +487,10 @@ class Game extends React.Component {
             }
             previousState.players[index].approved = !previousState.players[index].approved
             
-        
+            
             const response = await this.approvePlayer(accessCode, playerID, previousState.players[index].approved)
             return (response.data.status) ? {players: previousState.players} : {}
-        
+            
         }
     }
     
@@ -492,14 +503,14 @@ class Game extends React.Component {
                 "approved": playerApproved
             })
             if(response.data.status) {
-                this.setState({message: (<h3 className="loading">Complete!</h3>)})
+                // this.setState({awaitingApproval: false})
             }
             return response
         } catch (error) {
             return error.response
         }
     }
-
+    
     async deletePlayer(accessCode, playerID) {
         try {
             const response = await axios.put("/api/deletePlayer", 
@@ -566,7 +577,7 @@ class Game extends React.Component {
         this._isMounted && subscribeToDatabase({
         accessCode: this.state.accessCode, 
         getUpdates: async () => {
-            this.getUpdates()
+            await this.getUpdates()
         },
         lastUpdated: () => {
             this.setState({lastUpdated: this.lastUpdated()})
