@@ -212,7 +212,7 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
 
 if(env === "production") {
     app.get("/signupsheet", (req, res) => {
-        var tempFile = __dirname + "../src/jellybean_contest_sign-up_sheet.pdf"
+        var tempFile = path.join(__dirname + "../src/jellybean_contest_sign-up_sheet.pdf")
         fs.readFile(tempFile, function (err,data){
             res.contentType("application/pdf");
             res.send(data);
