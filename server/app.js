@@ -210,14 +210,15 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
+app.get("/signupsheet", (req, res) => {
+    var tempFile = __dirname + "/../src/jellybean_contest_sign-up_sheet.pdf"
+    fs.readFile(tempFile, function (err,data){
+        res.contentType("application/pdf");
+        res.send(data);
+     });
+})
+
 if(env === "production") {
-    app.get("/signupsheet", (req, res) => {
-        var tempFile = path.join(__dirname + "../src/jellybean_contest_sign-up_sheet.pdf")
-        fs.readFile(tempFile, function (err,data){
-            res.contentType("application/pdf");
-            res.send(data);
-         });
-    })
     app.get("*", (req, res) => {
         res.sendFile(path.join(__dirname + "/../build/index.html"));
     })
