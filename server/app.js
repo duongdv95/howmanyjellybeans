@@ -158,8 +158,12 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
         const playerID = req.body.playerID
         const accessCode = req.body.accessCode
         const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
+        const deletedPlayer = response.deletedPlayer
         if(response.status) {
             res.status(200).json(response)
+            if(deletedPlayer.approved) {
+                await pgFunctions.sortPlayerRank({accessCode})
+            }
             io.to(accessCode).emit("databaseUpdated", true)
         } else {
             res.status(400).json(response)

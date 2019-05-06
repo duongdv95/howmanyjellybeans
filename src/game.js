@@ -171,7 +171,7 @@ class Options extends React.Component {
         const status = this.props.status
         const gameEnded = this.props.gameEnded
         if(inDB && isHost) {
-            displayArray.push("leaveButton")
+            // displayArray.push("leaveButton")
             displayArray.push("endButton")
         }
         if(inDB && !isHost) {
@@ -248,7 +248,7 @@ class PlayerTable extends React.Component {
 }
 
 function subscribeToDatabase({accessCode, getUpdates, lastUpdated}) {
-    var debounceUpdate = debounce(getUpdates, 2000, {
+    var debounceUpdate = debounce(getUpdates, 1500, {
         "leading": false,
         "trailing": true
     })

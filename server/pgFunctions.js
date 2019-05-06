@@ -295,6 +295,9 @@ async function deletePlayer(args) {
     var playersResponse = await getPlayers({accessCode, revealSessionID: true, sessionID})
     if(!playersResponse.status) {return playersResponse}
     var playersArray = playersResponse.message
+    const [deletedPlayer] = playersArray.filter((element) => {
+        return element.id === playerID
+    })
     var index = (playerID) ? getPlayerIndex({playersArray, playerID}) : getPlayerIndex({playersArray, sessionID}) // true -> host deletes player
     if(index == null){                                                                                                     // false -> player leaves game
         return {status: false, message: "Player not found."}
@@ -305,7 +308,7 @@ async function deletePlayer(args) {
     playersArray.splice(index, 1)
     const deletePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
     if (deletePlayerResponse) {
-        return {status: true, message: playersArray}
+        return {status: true, message: playersArray, deletedPlayer}
     } else {
         return {status: false, message: "Error deleting player!"}
     }
