@@ -281,7 +281,7 @@ class Game extends React.Component {
             playerName: "",
             playerGuess: null,
             winningNumber: "",
-            awaitingApproval: false,
+            awaitingUpdate: false,
             message: null,
             lastUpdated: this.lastUpdated()
         }
@@ -328,7 +328,7 @@ class Game extends React.Component {
                 gameEnded: response.data.gameEnded,
                 winningNumber: response.data.winningNumber
             })
-            this.setState({awaitingApproval: false})
+            this.setState({awaitingUpdate: false})
             this.setState({message: (<h3 className="loading">Ready!</h3>)})
         }
         if(response.data.status === true){
@@ -404,15 +404,7 @@ class Game extends React.Component {
         if(option === "deletePlayerButton") {
             const playerID = buttonElement.dataset.id
             this.deletePlayer(this.state.accessCode, playerID)
-            this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
-            // debounce(() => {
-            //     const playerID = buttonElement.dataset.id
-            //     this.deletePlayer(this.state.accessCode, playerID)
-            //     this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
-            // }, 2000, {
-            //     "leading": true,
-            //     "trailing": false
-            // })()
+            this.setState({awaitingUpdate: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
         }
     }
     
@@ -463,8 +455,8 @@ class Game extends React.Component {
             break
             
             case "approvePlayerCheckBox":
-            if(!this.state.awaitingApproval) {
-                this.setState({awaitingApproval: true, message: (<div><h3 className="loading">Updating players...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+            if(!this.state.awaitingUpdate) {
+                this.setState({awaitingUpdate: true, message: (<div><h3 className="loading">Updating players...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
                 const playerID = event.target.dataset.id
                 this.setState(this.updateApprovedPlayers(playerID, this.state.accessCode))
             }
@@ -503,7 +495,6 @@ class Game extends React.Component {
                 "approved": playerApproved
             })
             if(response.data.status) {
-                // this.setState({awaitingApproval: false})
             }
             return response
         } catch (error) {

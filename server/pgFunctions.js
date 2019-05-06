@@ -39,8 +39,10 @@ async function sortPlayerRank({accessCode}) {
     var playersResponse = await getPlayers({accessCode, revealSessionID: true})
     if(!playersResponse.status || !winningNumberResponse) {return {status: false, message: "invalid access code"}}
     var playersArrayWithHost = playersResponse.message;
-    var hostsArray = playersArrayWithHost.filter(element => element.host == true)
-    var playersArray = playersArrayWithHost.filter(element => element.host == false)
+    var hostsArray = playersArrayWithHost.filter(element => element.host === true)
+    var playersArray = playersArrayWithHost.filter((element) => 
+        element.host === false && element.approved === true
+    )
     var winningNumber = winningNumberResponse.winning_number
     playersArray.sort(function(a, b) {
         return Math.abs(winningNumber - a.guess) - Math.abs(winningNumber - b.guess) 
