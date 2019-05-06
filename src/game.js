@@ -399,7 +399,12 @@ class Game extends React.Component {
             this.leaveGame(this.state.accessCode)
         }        
         if(option === "endButton") {
-            this.endGame(this.state.accessCode)
+            var endGame = window.confirm('Are you sure you want to end the game?')
+            if(endGame){
+                this.endGame(this.state.accessCode)
+            } else {
+
+            }
         }
         if(option === "deletePlayerButton") {
             const playerID = buttonElement.dataset.id
