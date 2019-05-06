@@ -301,7 +301,7 @@ class Home extends React.Component {
         const eventType = event.target.name
         const hostName = this.state.hostName
         const winningNumber = this.state.winningNumber
-        const accessCode = this.state.accessCode
+        const accessCode = this.state.accessCode.toLowerCase()
         const playerName = this.state.playerName
         const playerGuess = this.state.playerGuess
         const stage = parseInt(event.target.getAttribute("data-stage"));

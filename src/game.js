@@ -272,7 +272,7 @@ class Game extends React.Component {
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.state = {
-            accessCode: this.props.match.params.id,
+            accessCode: this.getLowerCaseAccessCode(),
             players: [],
             status: false,
             isHost: false,
@@ -285,6 +285,11 @@ class Game extends React.Component {
             message: null,
             lastUpdated: this.lastUpdated()
         }
+    }
+
+    getLowerCaseAccessCode() {
+        let accessCode = this.props.match.params.id + ""
+        return accessCode.toLowerCase()
     }
 
     lastUpdated() {

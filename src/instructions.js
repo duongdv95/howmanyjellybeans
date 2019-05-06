@@ -45,7 +45,7 @@ function HowToPlay() {
                     </p>
                     <p>
                         Now you have one jar with jellybeans and another jar for collecting the entry fee.
-                        Participants can pay a fee to join and you can approve them once they've paid.
+                        Charge participants a fee to join and you can approve them once they've paid.
                     </p>
                     <p>
                         <strong>
@@ -58,6 +58,10 @@ function HowToPlay() {
                         <strong> End Game </strong> to get the player rankings. You can decide how to 
                         award the winner(s). Typically the winner would get the jar of jellybeans
                         but you can give additional prizes (gift cards, gift baskets, entry fee jar).
+                    </p>
+                    <p>
+                        Doing a test-run is recommended to get familiar with the
+                        web app.
                     </p>
                 </div>
             </div>
