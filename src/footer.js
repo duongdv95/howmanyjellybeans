@@ -1,5 +1,4 @@
 import React from "react";
-import {Link} from "react-router-dom";
 import './home.css'
 
 function Footer() {
@@ -7,10 +6,10 @@ function Footer() {
         <div id="home-footer" className="footer grid">
             <div className="content-wrap">
                 <div>
-                    <Link to={"/instructions"} target="__blank">Organize an event</Link>
+                    <a href="/instructions" target="_blank">Organize an event</a>
                 </div>
                 <div>
-                    <Link to={"/about"} target="__blank">About</Link>    
+                    <a href="/contact" target="_blank">Contact</a>    
                 </div>
             </div>
         </div>

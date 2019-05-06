@@ -5,7 +5,7 @@ import Home from './home.js';
 import Game from './game.js';
 import Instructions from './instructions.js';
 import Unauthorized from './unauthorized.js';
-import About from './about.js';
+import Contact from './contact.js';
 import Invalid from "./invalid.js";
 
 class App extends React.Component {
@@ -15,7 +15,7 @@ class App extends React.Component {
                 <Switch>
                     <Route exact path="/" component={Home} />
                     <Route exact path="/instructions/" component={Instructions} />
-                    <Route exact path="/about/" component={About} />
+                    <Route exact path="/contact/" component={Contact} />
                     <Route path="/unauthorized/" component={Unauthorized} />
                     <Route path="/invalidaccesscode/" component={Invalid} />
                     <Route exact path="/:id" component={Game} />

@@ -1,5 +1,4 @@
 import React from "react";
-import {Link} from "react-router-dom";
 import Footer from './footer.js';
 
 function HowToPlay() {
@@ -21,10 +20,10 @@ function HowToPlay() {
                             Big bag of jellybeans or hershey kisses
                         </li>
                         <li>
-                            First jar for jellybeans
+                            Jar for collecting entry fee
                         </li>
                         <li>
-                            Second jar for entry fee
+                            Jar for jellybeans
                         </li>
                         <li>
                             Table
@@ -35,11 +34,11 @@ function HowToPlay() {
                         and save it somewhere so you won't forget.
                     </p>
                     <p>
-                        Next, go to <Link to={"/"} target="_blank">howmanyjellybeans</Link>. Create a
+                        Next, go to <a href="/" target="_blank">howmanyjellybeans</a>. Create a
                         game and submit your host name and winning number. Record the access code.
                     </p>
                     <p>
-                        Print sign up sheets <Link to={"/signupsheet"} target="_blank">here</Link> and
+                        Print sign up sheets <a href="/signupsheet" target="_blank">here</a> and
                         fill in the access code on the sheet: www.howmanyjellybeans/XXXXXX. Have participants 
                         go to the URL on the sign up sheet and submit their name and guess on the website and
                         on paper! (in case the website goes down)
