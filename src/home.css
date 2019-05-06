@@ -28,8 +28,8 @@ body {
     cursor: pointer;
 }
 div.bg-image {
-    content:url(https://i.imgur.com/Z7N8fOM.jpg);
-    width: 80%;
+    content:url(./howmanyjellybeans.jpg);
+    width: 60%;
     margin: 0px auto;
 }
 

@@ -9,10 +9,11 @@ function HowToPlay() {
                 <div className="content-wrap">
                     <h2>How to organize an event</h2>
                     <div>
-                        <h2>Fundraising Events</h2>
-                        <p>Organizing a jellybean guessing contest is a great way to raise money for any cause.
+                        <h2>Fundraising / Work / Family Events</h2>
+                        <p>Organizing a jellybean guessing contest is a great way to raise money for a fundraiser
+                            or have a fun activity at a work or family event.
                             With the help of this web app, participants can easily submit their guesses.
-                            And <strong>YOU</strong>, the host, can sort through the winners with a click of 
+                            And you, the host, can sort through the winners with a click of 
                             a button. These are some things you'll need to get started!
                         </p>
                         <ul>
@@ -20,18 +21,15 @@ function HowToPlay() {
                                     Big bag of jellybeans or hershey kisses
                                 </li>
                                 <li>
-                                    Two Jar, Vase, or clear container
+                                    Two Jars, Vase, or clear container
                                 </li>
                                 <li>
                                     Table, paper, tape, felt pen
                                 </li>
                         </ul>
                         <p>
-                            *It's recommended to keep a paper copy in case the website goes down.
-                        </p>
-                        <p>
                             You will want to count exactly how many jellybeans that will go in the jar 
-                            and write it down somewhere you won't forget! 
+                            and save it somewhere so you won't forget.
                         </p>
                         <p>
                             Next, go to <Link to={"/"} target="_blank">howmanyjellybeans</Link>. Create a
@@ -48,15 +46,8 @@ function HowToPlay() {
                         </p>
                         <p>
                             When you want to end the fundraiser, click 
-                            <strong> End Game </strong> to automatically rank players. You can decide how to 
-                            award the winner(s).
-                        </p>
-                    </div>
-                    <div>
-                        <h2>Work or Family Events</h2>
-                        <p>
-                            Hosting for work or family events is exactly the same as fundraising. The collected 
-                            money can all go to the winner or however you decide.
+                            <strong> End Game </strong> to get the player rankings. You can decide how to 
+                            award the winner(s). For example, gift cards, gift basket, the 
                         </p>
                     </div>
                 </div>
