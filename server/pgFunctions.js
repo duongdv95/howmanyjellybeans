@@ -210,7 +210,7 @@ async function addPlayer({playerData, accessCode}) {
             return {status: true, message: "Succesfully added player."}
         }
     } else {
-        return {status: false, message: "Did not add player, guess already in DB."}
+        return {status: false, message: "Error! This guess is taken."}
     }
 }
 

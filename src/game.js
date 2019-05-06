@@ -329,7 +329,7 @@ class Game extends React.Component {
                 winningNumber: response.data.winningNumber
             })
             this.setState({awaitingUpdate: false})
-            this.setState({message: (<h3 className="loading">Ready!</h3>)})
+            this.setState({message: (<h3 className="message">Ready!</h3>)})
         }
         if(response.data.status === true){
             this._isMounted && updateState()
@@ -409,7 +409,7 @@ class Game extends React.Component {
         if(option === "deletePlayerButton") {
             const playerID = buttonElement.dataset.id
             this.deletePlayer(this.state.accessCode, playerID)
-            this.setState({awaitingUpdate: true, message: (<div><h3 className="loading">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+            this.setState({awaitingUpdate: true, message: (<div><h3 className="message">Deleting player...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
         }
     }
     
@@ -427,6 +427,9 @@ class Game extends React.Component {
                 playerName && playerName.length > 0
                 ) {
                     const response = await this.joinGame(accessCode, playerName, playerGuess)
+                    if(!response.data.status) {
+                        this.setState({message: (<h3 className="message">{response.data.message}</h3>)})
+                    }
                     return (response.data.status === true) ? this.props.history.push(`/${accessCode}`) : this.setState({response: response.data})
                 }
                 break
@@ -461,7 +464,7 @@ class Game extends React.Component {
             
             case "approvePlayerCheckBox":
             if(!this.state.awaitingUpdate) {
-                this.setState({awaitingUpdate: true, message: (<div><h3 className="loading">Updating players...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
+                this.setState({awaitingUpdate: true, message: (<div><h3 className="message">Updating players...</h3><div className="lds-ring"><div></div><div></div><div></div><div></div></div></div>)})
                 const playerID = event.target.dataset.id
                 this.setState(this.updateApprovedPlayers(playerID, this.state.accessCode))
             }

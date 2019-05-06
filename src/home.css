@@ -256,7 +256,7 @@ h2 {
     transform: translateX(26px);
   }
 
-  .loading {
+  .message {
       display: inline-block;
       height: 32px;
   }
