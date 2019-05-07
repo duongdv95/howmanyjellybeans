@@ -10,23 +10,22 @@ function HowToPlay() {
                 <div>
                     <h2>Fundraising / Work / Family Events</h2>
                     <p>Organizing a jellybean guessing contest is a great way to raise money for a fundraiser
-                        or have a fun activity at a work or family event.
+                        or have a fun activity at a work or family gathering.
                         With the help of this web app, participants can easily submit their guesses.
                         And you, the host, can sort through the winners with a click of 
-                        a button. These are some things you'll need to get started!
+                        a button. These are some things you'll need to get started! (Amazon Affiliate links below)
                     </p>
                     <ul>
                         <li>
-                            Big bag of jellybeans or hershey kisses
+                            Big bag of <a href="https://amzn.to/2DS4FyF" target="_blank" rel="noopener noreferrer">jellybeans</a> 
+                            <span> </span> or <a href="https://amzn.to/2JjFokE" target="_blank" rel="noopener noreferrer">hershey kisses</a>
                         </li>
                         <li>
-                            Jar for collecting entry fee
+                            <a href="https://amzn.to/2VjkJEp" target="_blank" rel="noopener noreferrer">Two Jars</a>
+                            <span> </span> to display the jellybeans and collect the entry fee
                         </li>
                         <li>
-                            Jar for jellybeans
-                        </li>
-                        <li>
-                            Table
+                            <a href="https://amzn.to/2POVrYZ" target="_blank" rel="noopener noreferrer">Table</a>
                         </li>
                     </ul>
                     <p>

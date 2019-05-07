@@ -16,6 +16,9 @@ body {
     padding: 2px;
 }
 
+#home-footer .footer-link {
+    display: inline-block;
+}
 #home-footer a, #instructions a {
     color: gray;
     text-decoration: none;
@@ -199,6 +202,14 @@ h2 {
     margin: 0;
     line-height: 1.5;
     color: #666666;
+}
+
+#home-footer #amazon-disclaimer {
+    width: 40%;
+    font-size: 0.8em;
+    margin: 0 auto;
+    line-height: 1.5;
+    color: #666666;   
 }
 
 #contact .content-wrap div {

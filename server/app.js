@@ -47,9 +47,7 @@ if(env === "production") {
         cert: hscert,
         ca: hschain
     }
-    // app.listen(80, () => {
-    //     console.log("connected on 80..")
-    // })
+
     app.listen(80, () => {
         console.log('Listening on 80...')
       })
@@ -116,8 +114,7 @@ app.post("/api/createGame", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-//, checkDuplicateUsers
-app.post("/api/addPlayer", gameNotOver, async (req, res) => {
+app.post("/api/addPlayer", checkDuplicateUsers, gameNotOver, async (req, res) => {
     const username = req.body.username
     const guess = req.body.guess
     const accessCode = req.body.accessCode
@@ -143,9 +140,6 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     const response = await pgFunctions.endGame({accessCode});
     if(response.status) {
         res.status(200).json(response)
-        // setTimeout(() => {
-            //     io.to(accessCode).emit("databaseUpdated", true)
-            // }, 1000)
             io.to(accessCode).emit("databaseUpdated", true)
         } else {
             res.status(400).json(response)
@@ -201,14 +195,14 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     })
     
     //Unused endpoint
-    app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
-        const playerID = req.body.playerID
-        const accessCode = req.body.accessCode
-        const guess = req.body.guess
-    const host = req.body.host
-    const response = await pgFunctions.updatePlayer({playerID, accessCode, guess, host})
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
-})
+//     app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
+//         const playerID = req.body.playerID
+//         const accessCode = req.body.accessCode
+//         const guess = req.body.guess
+//     const host = req.body.host
+//     const response = await pgFunctions.updatePlayer({playerID, accessCode, guess, host})
+//     response.status ? res.status(200).json(response) : res.status(400).json(response)
+// })
 
 app.get("/signupsheet", (req, res) => {
     var tempFile = __dirname + "/../src/jellybean_contest_sign-up_sheet.pdf"
@@ -322,13 +316,3 @@ async function checkDuplicateUsers(req, res, next) {
         return next();
     }
 }
-
-// 3000 for heroku deployment, and 5000 for dev environment
-
-
-
-// http.createServer(app).listen(port, () => {
-//     console.log('Listening...')
-//   })
-
-//Add ,"proxy": "http://localhost:5000" to package.json during dev environment
