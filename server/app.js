@@ -13,6 +13,7 @@ const path             = require("path");
 const socket           = require("socket.io");
 const fs               = require("fs")
 const cors             = require("cors")
+const {check, validationResult} = require("express-validator/check")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
 var hscert, hschain, hskey, io, server, cookie
@@ -83,6 +84,13 @@ app.use(session({
     cookie
 }));
 
+app.use((err, req, res, next) => {
+    console.log(err)
+    if(err.status === 400)
+      return res.status(err.status).json({message: "Invalid request"});
+    return next(err);
+})
+
 app.get("/api/:id/status", async (req, res) => {
     const accessCode = req.params.id
     const response = await pgFunctions.gameStatus({accessCode});
@@ -106,7 +114,10 @@ app.get("/api/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
     response ? res.status(200).json(response) : res.status(400).json(response.message)
 })
 
-app.post("/api/createGame", async (req, res) => {
+app.post("/api/createGame", [
+    check("username").isLength({min:1}),
+    check("winningNumber").isLength({min:1}).isNumeric()
+], checkIfValidRequest, async (req, res) => {
     const username = req.body.username
     const winningNumber = req.body.winningNumber
     const playerData = generatePlayerObj({username, guess: null, host: true, sessionID: req.sessionID})
@@ -114,26 +125,30 @@ app.post("/api/createGame", async (req, res) => {
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.post("/api/addPlayer", checkDuplicateUsers, gameNotOver, async (req, res) => {
-    const username = req.body.username
-    const guess = req.body.guess
-    const accessCode = req.body.accessCode
-    const playerData = generatePlayerObj({username, guess, host: false, sessionID: req.sessionID})
-    const response = await pgFunctions.addPlayer({playerData, accessCode})
-    if(response.status) {
-        res.status(200).json(response)
-        io.to(accessCode).emit("databaseUpdated", true)
-    } else {
-        res.status(400).json(response)
-    }
+app.post("/api/addPlayer", [
+    check("username").isLength({min:1}),
+    check("guess").isLength({min: 1}),
+    check("accessCode").isLength({min:6})
+], checkIfValidRequest, checkDuplicateUsers, gameNotOver, async (req, res) => {
+      const username = req.body.username
+      const guess = req.body.guess
+      const accessCode = req.body.accessCode
+      const playerData = generatePlayerObj({username, guess, host: false, sessionID: req.sessionID})
+      const response = await pgFunctions.addPlayer({playerData, accessCode})
+      if(response.status) {
+          res.status(200).json(response)
+          io.to(accessCode).emit("databaseUpdated", true)
+      } else {
+          res.status(400).json(response)
+      }
 })
 
-// Restricted to host
-app.delete("/api/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
-    const accessCode = req.params.id;
-    const response = await pgFunctions.deleteGame({accessCode});
-    response.status ? res.status(200).json(response) : res.status(400).json(response)
-})
+// Unused endpoint
+// app.delete("/api/:id/deleteGame", isAllowed({role: "host"}), async (req, res) => {
+//     const accessCode = req.params.id;
+//     const response = await pgFunctions.deleteGame({accessCode});
+//     response.status ? res.status(200).json(response) : res.status(400).json(response)
+// })
 
 app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
@@ -146,55 +161,64 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
         }
     })
     
-    // Restricted to host
-    app.put("/api/deletePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
-        const sessionID = req.session.id
-        const playerID = req.body.playerID
-        const accessCode = req.body.accessCode
-        const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
-        const deletedPlayer = response.deletedPlayer
-        if(response.status) {
-            res.status(200).json(response)
-            if(deletedPlayer.approved) {
-                await pgFunctions.sortPlayerRank({accessCode})
-            }
-            io.to(accessCode).emit("databaseUpdated", true)
-        } else {
-            res.status(400).json(response)
-        }
-    })
-    
-    app.put("/api/approvePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
-        const accessCode = req.body.accessCode
-        const playerID = req.body.playerID
-        const playerApproved = req.body.approved
-        const response = await pgFunctions.approvePlayer({accessCode, playerID, playerApproved})
-        if(response.status) {
-            res.status(200).json(response)
+// Restricted to host
+app.put("/api/deletePlayer", [
+    check("playerID").isLength({min:1}),
+    check("accessCode").isLength({min:6})
+], checkIfValidRequest, isAllowed({role: "host"}), gameNotOver, async (req, res) => {
+    const sessionID = req.session.id
+    const playerID = req.body.playerID
+    const accessCode = req.body.accessCode
+    const response = await pgFunctions.deletePlayer({sessionID, playerID, accessCode})
+    const deletedPlayer = response.deletedPlayer
+    if(response.status) {
+        res.status(200).json(response)
+        if(deletedPlayer.approved) {
             await pgFunctions.sortPlayerRank({accessCode})
-            io.to(accessCode).emit("databaseUpdated", true)
-        } else {
-            res.status(400).json(response)
         }
-    })
+        io.to(accessCode).emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
+})
     
-    app.put("/api/leaveGame", isAllowed({role: "player"}), gameNotOver, async (req, res) => {
-        const sessionID = req.session.id
-        const accessCode = req.body.accessCode
-        const response = await pgFunctions.deletePlayer({sessionID, accessCode})
-        if(response) {
-            req.session.destroy(function(){
-            });
-        }
-        if(response.status) {
-            res.status(200).json(response)
-            io.to(accessCode).emit("databaseUpdated", true)
-        } else {
-            res.status(400).json(response)
-        }
-    })
+app.put("/api/approvePlayer", [
+    check("playerID").isLength({min:1}),
+    check("accessCode").isLength({min:6}),
+    check("approved").isBoolean()
+], checkIfValidRequest, isAllowed({role: "host"}), gameNotOver, async (req, res) => {
+    const accessCode = req.body.accessCode
+    const playerID = req.body.playerID
+    const playerApproved = req.body.approved
+    const response = await pgFunctions.approvePlayer({accessCode, playerID, playerApproved})
+    if(response.status) {
+        res.status(200).json(response)
+        await pgFunctions.sortPlayerRank({accessCode})
+        io.to(accessCode).emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
+})
     
-    //Unused endpoint
+app.put("/api/leaveGame", [
+    check("accessCode").isLength({min:6})
+], checkIfValidRequest, isAllowed({role: "player"}), gameNotOver, async (req, res) => {
+    const sessionID = req.session.id
+    const accessCode = req.body.accessCode
+    const response = await pgFunctions.deletePlayer({sessionID, accessCode})
+    if(response) {
+        req.session.destroy(function(){
+        });
+    }
+    if(response.status) {
+        res.status(200).json(response)
+        io.to(accessCode).emit("databaseUpdated", true)
+    } else {
+        res.status(400).json(response)
+    }
+})
+    
+//Unused endpoint
 //     app.put("/api/updatePlayer", isAllowed({role: "host"}), gameNotOver, async (req, res) => {
 //         const playerID = req.body.playerID
 //         const accessCode = req.body.accessCode
@@ -238,8 +262,8 @@ async function deleteGames() {
             var timeElapsed = (currentDate - date)/1000
             //24*60*60, 24 hours converted to seconds
             var accessCode = gamesArray[i].access_code
-            if (timeElapsed > 24*60*60) {
-                //delete all games every 24 hour 
+            if (timeElapsed > 48*60*60) {
+                //delete all games every 48 hour 
                 var responses = await pgFunctions.deleteGame({accessCode})
             }
         }
@@ -297,6 +321,15 @@ async function gameNotOver(req, res, next) {
     res.status(400).json({status: false, message: "Game does not exist"})
 }
 
+function checkIfValidRequest(req, res, next) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
+    } else {
+        next()
+    }
+}
+
 async function checkDuplicateUsers(req, res, next) {
     const accessCode = req.params.id || req.body.accessCode
     const sessionID = req.session.id
@@ -316,3 +349,4 @@ async function checkDuplicateUsers(req, res, next) {
         return next();
     }
 }
+
