@@ -1,6 +1,5 @@
 const express          = require("express");
 const https            = require("https");
-const http             = require("http")
 const app              = express();
 const bodyParser       = require("body-parser");
 const pgFunctions      = require("./pgFunctions");
@@ -13,9 +12,10 @@ const path             = require("path");
 const socket           = require("socket.io");
 const fs               = require("fs")
 const cors             = require("cors")
-const {check, validationResult} = require("express-validator/check")
 const env              = process.env.NODE_ENV || "development"
 const port             = process.env.PORT || 5000;
+const rateLimit        = require("express-rate-limit")
+const {check, validationResult} = require("express-validator/check")
 var hscert, hschain, hskey, io, server, cookie
 
 if(env === "development") {
@@ -69,6 +69,16 @@ io.on('connection', function (socket) {
     })
  });
 
+const generalLimiter = rateLimit({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 100 // limit each IP to 100 requests per windowMs,
+});
+
+const createGameLimiter = rateLimit({
+     windowMs: 15 * 60 * 1000, // 15 minutes
+     max: 10 // limit each IP to 100 requests per windowMs,
+});
+
 app.use(bodyParser.json());
 app.use(session({
     genid: (req) => {
@@ -91,13 +101,13 @@ app.use((err, req, res, next) => {
     return next(err);
 })
 
-app.get("/api/:id/status", async (req, res) => {
+app.get("/api/:id/status", generalLimiter, async (req, res) => {
     const accessCode = req.params.id
     const response = await pgFunctions.gameStatus({accessCode});
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.get("/api/:id/players", isHost, async (req, res) => {
+app.get("/api/:id/players", generalLimiter, isHost, async (req, res) => {
     const accessCode = req.params.id
     const sessionID = req.session.id
     const response = await pgFunctions.getPlayers({accessCode, sessionID});
@@ -108,13 +118,13 @@ app.get("/api/:id/players", isHost, async (req, res) => {
 })
 
 // Restricted to host
-app.get("/api/:id/sortplayers", isAllowed({role: "host"}), async (req, res) => {
+app.get("/api/:id/sortplayers", generalLimiter, isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id
     const response = await pgFunctions.getSortedPlayersRank({accessCode});
     response ? res.status(200).json(response) : res.status(400).json(response.message)
 })
 
-app.post("/api/createGame", [
+app.post("/api/createGame", createGameLimiter, [
     check("username").isLength({min:1}),
     check("winningNumber").isLength({min:1}).isNumeric()
 ], checkIfValidRequest, async (req, res) => {
@@ -125,7 +135,7 @@ app.post("/api/createGame", [
     response.status ? res.status(200).json(response) : res.status(400).json(response)
 })
 
-app.post("/api/addPlayer", [
+app.post("/api/addPlayer", generalLimiter, [
     check("username").isLength({min:1}),
     check("guess").isLength({min: 1}),
     check("accessCode").isLength({min:6})
@@ -150,7 +160,7 @@ app.post("/api/addPlayer", [
 //     response.status ? res.status(200).json(response) : res.status(400).json(response)
 // })
 
-app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
+app.put("/api/:id/endGame", generalLimiter, isAllowed({role: "host"}), async (req, res) => {
     const accessCode = req.params.id;
     const response = await pgFunctions.endGame({accessCode});
     if(response.status) {
@@ -162,7 +172,7 @@ app.put("/api/:id/endGame", isAllowed({role: "host"}), async (req, res) => {
     })
     
 // Restricted to host
-app.put("/api/deletePlayer", [
+app.put("/api/deletePlayer", generalLimiter, [
     check("playerID").isLength({min:1}),
     check("accessCode").isLength({min:6})
 ], checkIfValidRequest, isAllowed({role: "host"}), gameNotOver, async (req, res) => {
@@ -182,7 +192,7 @@ app.put("/api/deletePlayer", [
     }
 })
     
-app.put("/api/approvePlayer", [
+app.put("/api/approvePlayer", generalLimiter, [
     check("playerID").isLength({min:1}),
     check("accessCode").isLength({min:6}),
     check("approved").isBoolean()
@@ -200,7 +210,7 @@ app.put("/api/approvePlayer", [
     }
 })
     
-app.put("/api/leaveGame", [
+app.put("/api/leaveGame", generalLimiter, [
     check("accessCode").isLength({min:6})
 ], checkIfValidRequest, isAllowed({role: "player"}), gameNotOver, async (req, res) => {
     const sessionID = req.session.id
@@ -228,7 +238,7 @@ app.put("/api/leaveGame", [
 //     response.status ? res.status(200).json(response) : res.status(400).json(response)
 // })
 
-app.get("/signupsheet", (req, res) => {
+app.get("/signupsheet", generalLimiter, (req, res) => {
     var tempFile = __dirname + "/../src/jellybean_contest_sign-up_sheet.pdf"
     fs.readFile(tempFile, function (err,data){
         res.contentType("application/pdf");
