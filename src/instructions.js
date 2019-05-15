@@ -18,7 +18,7 @@ function HowToPlay() {
                     <ul>
                         <li>
                             Big bag of <a href="https://amzn.to/2DS4FyF" target="_blank" rel="noopener noreferrer">jellybeans</a> 
-                            <span> </span> or <a href="https://amzn.to/2JjFokE" target="_blank" rel="noopener noreferrer">hershey kisses</a>
+                            <span> </span> or <a href="https://amzn.to/2VDkVP5" target="_blank" rel="noopener noreferrer">hershey kisses</a>
                         </li>
                         <li>
                             <a href="https://amzn.to/2VjkJEp" target="_blank" rel="noopener noreferrer">Two Jars</a>
