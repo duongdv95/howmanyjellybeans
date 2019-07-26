@@ -275,7 +275,7 @@ async function updatePlayer(args) {
         } else {
             playersArray[index].guess = guess
         }
-        const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(playersArray)})
+        const updatePlayerResponse = await knex("games").where({access_code: accessCode}).update({players: JSON.stringify(["yeet"])})
         if (updatePlayerResponse) return {status: true, message: playersArray}
     } else {
         let message

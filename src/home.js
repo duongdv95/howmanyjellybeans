@@ -237,6 +237,7 @@ class Home extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        
         this.state = {
             display: ["createGame", "joinGame"],
             hostName: "",

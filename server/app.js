@@ -40,9 +40,9 @@ if(env === "production") {
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
     app.set("trust proxy", 1)
-    hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/privkey.pem')
-    hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/cert.pem')
-    hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com-0002/chain.pem')
+    hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/privkey.pem')
+    hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
+    hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
     var serverOptions = {
         key: hskey,
         cert: hscert,
@@ -359,4 +359,3 @@ async function checkDuplicateUsers(req, res, next) {
         return next();
     }
 }
-
