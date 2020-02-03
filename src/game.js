@@ -3,7 +3,8 @@ import axios from "axios"
 import io from "socket.io-client";
 import Footer from './footer.js';
 import debounce from "lodash.debounce";
-var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
+// var URL    = process.env.REACT_APP_PRODUCTIONSITE || "http://localhost:5000"
+var URL    = "https://jellybean-app.herokuapp.com"
 var socket = io(URL);
 
 // Components Hierarchy

@@ -55,7 +55,7 @@ if(env === "production") {
     app.listen(port, () => {
         console.log('Listening on 80...')
       })
-    server = http.createServer(app).listen(5000, () => {
+    server = http.createServer(app).listen(port, () => {
         console.log('SSL Listening...')
     })
     io = socket.listen(server)
