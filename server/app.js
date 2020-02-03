@@ -1,5 +1,6 @@
 const express          = require("express");
 const https            = require("https");
+const http            = require("http");
 const app              = express();
 const bodyParser       = require("body-parser");
 const pgFunctions      = require("./pgFunctions");
@@ -12,11 +13,13 @@ const path             = require("path");
 const socket           = require("socket.io");
 const fs               = require("fs")
 const cors             = require("cors")
-const env              = process.env.NODE_ENV || "development"
+// const env              = process.env.NODE_ENV || "development"
+const env              = "production"
 const port             = process.env.PORT || 5000;
 const rateLimit        = require("express-rate-limit")
 const {check, validationResult} = require("express-validator/check")
-var hscert, hschain, hskey, io, server, cookie
+// var hscert, hschain, hskey 
+var io, server, cookie
 
 if(env === "development") {
     cookie = {maxAge: null}
@@ -28,31 +31,31 @@ if(env === "development") {
     io = socket.listen(server)
 } 
 if(env === "production") {
-    cookie = {maxAge: null, secure: true}
+    cookie = {maxAge: null, secure: false}
     app.use(cors())
-    function requireHTTPS(req, res, next) {
-        if (!req.secure) {
-            return res.redirect('https://' + req.hostname + req.url);
-        }
-        next();
-    }
-    app.use(requireHTTPS);
+    // function requireHTTPS(req, res, next) {
+    //     if (!req.secure) {
+    //         return res.redirect('https://' + req.hostname + req.url);
+    //     }
+    //     next();
+    // }
+    // app.use(requireHTTPS);
     app.use(express.static(__dirname + '/../build/static', { dotfiles: 'allow' }))
     app.use(express.static(path.join(__dirname, '/../build')));
-    app.set("trust proxy", 1)
-    hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/privkey.pem')
-    hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
-    hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
-    var serverOptions = {
-        key: hskey,
-        cert: hscert,
-        ca: hschain
-    }
+    // app.set("trust proxy", 1)
+    // hskey     = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/privkey.pem')
+    // hscert    = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/cert.pem')
+    // hschain   = fs.readFileSync('/etc/letsencrypt/live/howmanyjellybeans.com/chain.pem')
+    // var serverOptions = {
+    //     key: hskey,
+    //     cert: hscert,
+    //     ca: hschain
+    // }
 
     app.listen(80, () => {
         console.log('Listening on 80...')
       })
-    server = https.createServer(serverOptions, app).listen(443, () => {
+    server = http.createServer(app).listen(5000, () => {
         console.log('SSL Listening...')
     })
     io = socket.listen(server)
