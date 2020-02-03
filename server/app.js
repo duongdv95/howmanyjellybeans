@@ -52,7 +52,7 @@ if(env === "production") {
     //     ca: hschain
     // }
 
-    app.listen(80, () => {
+    app.listen(port, () => {
         console.log('Listening on 80...')
       })
     server = http.createServer(app).listen(5000, () => {
