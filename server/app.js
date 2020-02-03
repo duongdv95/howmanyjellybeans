@@ -52,13 +52,11 @@ if(env === "production") {
     //     ca: hschain
     // }
 
-    app.listen(port, () => {
-        console.log('Listening on 80...')
-      })
-    server = http.createServer(app).listen(port, () => {
-        console.log('SSL Listening...')
-    })
+    server = http.createServer(app)
     io = socket.listen(server)
+    server.listen(port, () => {
+        console.log(`Listening on ${port}...`)
+        })
 }
 
 io.on('connection', function (socket) {
