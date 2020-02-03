@@ -29,7 +29,7 @@
     "build": "react-scripts build",
     "development": "concurrently \"npm run dev-start\" \"nodemon server/app.js\"",
     "production": "concurrently \"npm run build\" \"node server/app.js\"",
-    "start": "concurrently \"npm run build\" \"node server/app.js\"",
+    "start": "concurrently \"npm run build\" \"node server/app.js\""
   },
   "eslintConfig": {
     "extends": "react-app"
